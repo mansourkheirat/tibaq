@@ -1,0 +1,69 @@
+# ملفات الإعدادات الحساسة
+config.php
+.env
+
+# ملفات النسخ الاحتياطي
+*.sql
+*.bak
+*.backup
+*.old
+backup/
+backups/
+
+# ملفات السجلات
+*.log
+logs/
+error_log
+
+# ملفات النظام
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ملفات IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.project
+.buildpath
+.settings/
+
+# ملفات Composer
+/vendor/
+composer.lock
+
+# ملفات Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+
+# ملفات مؤقتة
+tmp/
+temp/
+cache/
+*.tmp
+
+# ملفات الرفع
+uploads/
+files/
+!uploads/.gitkeep
+
+# ملفات الجلسات
+sessions/
+!sessions/.gitkeep
+
+# ملفات المتصفح
+.sass-cache/
+
+# ملفات الاختبار
+phpunit.xml
+.phpunit.result.cache
+tests/_output/
+
+# تجاهل ملفات التطوير
+dev/
+development/
+test.php
+debug.php

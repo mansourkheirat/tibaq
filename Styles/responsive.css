@@ -1,0 +1,160 @@
+/* للأجهزة اللوحية */
+@media (max-width: 992px) {
+    .nav-container {
+        padding: 0 20px;
+    }
+    
+    .container {
+        padding: 0 20px;
+    }
+}
+
+/* للهواتف والأجهزة الصغيرة */
+@media (max-width: 768px) {
+    /* إخفاء القائمة العادية وإظهار أيقونة القائمة */
+    .nav-menu {
+        display: none;
+    }
+    
+    .menu-icon {
+        display: flex;
+    }
+    
+    .menu-icon.active span:nth-child(1) {
+        transform: rotate(45deg) translate(8px, 8px);
+    }
+    
+    .menu-icon.active span:nth-child(2) {
+        opacity: 0;
+    }
+    
+    .menu-icon.active span:nth-child(3) {
+        transform: rotate(-45deg) translate(7px, -7px);
+    }
+    
+    /* القائمة المنسدلة للموبايل */
+    .mobile-menu {
+        display: block;
+        position: fixed;
+        top: 108px;
+        left: 0;
+        right: 0;
+        background: var(--white);
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+        box-shadow: var(--shadow-md);
+    }
+    
+    .mobile-menu.active {
+        max-height: 500px;
+    }
+    
+    .mobile-menu ul {
+        list-style: none;
+        padding: 20px;
+    }
+    
+    .mobile-menu li {
+        margin: 15px 0;
+    }
+    
+    .mobile-menu a {
+        text-decoration: none;
+        color: var(--text-secondary);
+        font-weight: 500;
+        display: block;
+        padding: 12px 16px;
+        border-radius: 8px;
+        transition: all 0.3s;
+    }
+    
+    .mobile-menu a:hover {
+        background: var(--primary-light);
+        color: var(--primary-color);
+    }
+    
+    .mobile-menu .mobile-btn-login {
+        background: #00A6FB !important;
+        color: #FFFFFF !important;
+        text-align: center;
+        font-weight: 600;
+    }
+    
+    .mobile-menu .mobile-btn-login:hover {
+        background: #0891E6 !important;
+    }
+    
+    .mobile-menu .mobile-btn-register {
+        background: #10B981 !important;
+        color: #FFFFFF !important;
+        text-align: center;
+        font-weight: 600;
+    }
+    
+    .mobile-menu .mobile-btn-register:hover {
+        background: #0EA872 !important;
+    }
+    
+    /* شريط التاريخ */
+    .date-bar {
+        font-size: 11px;
+        padding: 10px 5px;
+    }
+    
+    .date-content {
+        gap: 5px;
+        padding: 0 10px;
+        text-align: center;
+    }
+    
+    /* المحتوى الرئيسي */
+    .main-content {
+        margin-top: 110px;
+    }
+    
+    /* صفحات المصادقة */
+    .simple-header-content {
+        padding: 0 20px;
+    }
+    
+    .auth-box {
+        padding: 30px 20px;
+        margin: 20px;
+    }
+    
+    .auth-box-header h1 {
+        font-size: 26px;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .form-options {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+    }
+    
+    .header-buttons {
+        gap: 8px;
+    }
+    
+    .btn-home, .btn-switch-login, .btn-switch-register {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+}
+
+/* للهواتف الصغيرة جداً */
+@media (max-width: 480px) {
+    .logo {
+        font-size: 22px;
+    }
+    
+    .date-bar {
+        font-size: 10px;
+    }
+}

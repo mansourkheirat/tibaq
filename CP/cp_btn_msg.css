@@ -1,0 +1,71 @@
+/**
+ * ستايلات الأزرار والرسائل
+ */
+
+/* أزرار عامة */
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    align-self: flex-start;
+}
+
+.btn-primary {
+    background: #0891E6;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #0284C7;
+}
+
+/* رسائل الترحيب */
+.welcome-message {
+    text-align: center;
+    padding: 100px 20px;
+    color: #6B7280;
+}
+
+.welcome-message h1 {
+    font-size: 32px;
+    margin-bottom: 15px;
+    color: #374151;
+}
+
+.welcome-message p {
+    font-size: 18px;
+    color: #9CA3AF;
+}
+
+/* رسائل الأخطاء */
+.error-message {
+    background: #FEE2E2;
+    border: 1px solid #FCA5A5;
+    color: #991B1B;
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px 0;
+}
+
+.error-message h2 {
+    margin-bottom: 10px;
+}
+
+/* عناوين ورسائل الخطأ العامة */
+.error-title {
+    font-size: 28px;
+    color: #EF4444;
+    margin-bottom: 15px;
+    font-weight: 700;
+}
+
+.redirect-info {
+    font-size: 14px;
+    color: #9CA3AF;
+    margin-top: 20px;
+}
+

@@ -1,0 +1,114 @@
+# ========================================
+# .htaccess - دعم تلقائي للصفحات الجديدة
+# لمشروع طباق وإسناد
+# ========================================
+
+RewriteEngine On
+RewriteBase /Tibaq/
+
+# ========================================
+# منع الوصول للملفات الحساسة
+# ========================================
+<FilesMatch "(config\.php|database\.php|Auth\.php|init\.php)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+Options -Indexes
+
+<FilesMatch "^\.">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+<FilesMatch "\.(bak|backup|old|sql|log)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# ========================================
+# إعدادات الأمان
+# ========================================
+<IfModule mod_headers.c>
+    Header set X-XSS-Protection "1; mode=block"
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set Content-Security-Policy "default-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# ========================================
+# استثناءات: الملفات والمجلدات الموجودة فعلياً
+# ========================================
+
+# إذا كان الطلب لملف موجود، استخدمه مباشرة
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+# إذا كان الطلب لمجلد موجود، استخدمه مباشرة
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# ========================================
+# القاعدة العامة الذكية: صفحات PHP تلقائية
+# ========================================
+
+# إذا كان الملف .php موجود، استخدمه
+# مثال: /dashboard → dashboard.php (إذا كان موجوداً)
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^([^/]+)/?$ $1.php [L,QSA]
+
+# ========================================
+# القاعدة الأخيرة: أسماء المستخدمين (profile)
+# ========================================
+
+# إذا لم يطابق أي شيء أعلاه، افترض أنه اسم مستخدم
+# الصيغة المسموحة: أحرف، أرقام، _, -, .
+RewriteCond %{REQUEST_URI} !^/Tibaq/(Styles|JS|images|assets)/
+RewriteRule ^([a-zA-Z0-9._-]+)/?$ profile.php?username=$1 [L,QSA]
+
+# ========================================
+# إعدادات PHP
+# ========================================
+php_value upload_max_filesize 10M
+php_value post_max_size 10M
+php_value session.cookie_httponly 1
+php_value session.cookie_secure 0
+php_value session.use_only_cookies 1
+php_flag display_errors Off
+php_flag display_startup_errors Off
+php_value error_reporting 0
+
+# ========================================
+# كيف يعمل؟
+# ========================================
+# 
+# 1️⃣ الملفات الموجودة:
+#    /Tibaq/login → يبحث عن login (ملف) → لا يوجد
+#                 → يبحث عن login.php → موجود! ✅
+#                 → يستخدم login.php
+# 
+# 2️⃣ الصفحات الجديدة:
+#    أنشئ: notifications.php
+#    الرابط: /Tibaq/notifications
+#    النتيجة: يعمل تلقائياً! ✅ (لا حاجة لتعديل .htaccess)
+# 
+# 3️⃣ أسماء المستخدمين:
+#    /Tibaq/john_doe → يبحث عن john_doe.php → لا يوجد
+#                    → يستخدم profile.php?username=john_doe ✅
+# 
+# 4️⃣ الأصول (Assets):
+#    /Tibaq/Styles/main.css → ملف موجود → يستخدمه مباشرة ✅
+# 
+# ========================================
+# 
+# ✅ المزايا:
+# - صفحات جديدة تعمل تلقائياً
+# - لا حاجة لتعديل .htaccess لكل صفحة
+# - أسماء المستخدمين تعمل
+# - الأصول (CSS/JS) تعمل
+# 
+# ⚠️ ملاحظة:
+# تأكد من أن أسماء الملفات لا تتعارض مع أسماء المستخدمين
+# 
+# ========================================

@@ -1,0 +1,91 @@
+/* صندوق الحالة */
+.status-box {
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px 0;
+    transition: transform 0.3s ease;
+}
+
+.status-box:hover {
+    transform: translateY(-5px);
+}
+
+/* حالة النجاح */
+.status-success {
+    background: #d4edda;
+    border: 2px solid #28a745;
+    color: #155724;
+}
+
+/* حالة الخطأ */
+.status-error {
+    background: #f8d7da;
+    border: 2px solid #dc3545;
+    color: #721c24;
+}
+
+/* أيقونة الحالة */
+.status-icon {
+    font-size: 48px;
+    margin-bottom: 10px;
+    animation: scaleIn 0.5s ease-in-out;
+}
+
+/* رسالة الحالة */
+.status-message {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* صندوق التفاصيل */
+.details {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 15px;
+    text-align: right;
+}
+
+.details p {
+    margin: 8px 0;
+    color: #666;
+    font-size: 15px;
+}
+
+.details strong {
+    color: #333;
+}
+
+/* شارة الجاهزية */
+.ready-badge {
+    display: inline-block;
+    background: #28a745;
+    color: white;
+    padding: 10px 30px;
+    border-radius: 50px;
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: 20px;
+    animation: pulse 2s infinite;
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+}
+
+/* الرسوم المتحركة */
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0);
+    }
+    to {
+        transform: scale(1);
+    }
+}
