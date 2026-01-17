@@ -62,7 +62,7 @@ if ($isLoggedIn) {
             
             <!-- القائمة الرئيسية للشاشات الكبيرة -->
             <div class="navbar-menu">
-                <a href="./" class="nav-link">الرئيسية</a>
+                <a href="./" class="nav-link">الرئيسة</a>
                 <a href="members" class="nav-link">الأعضاء</a>
                 
                 <?php if ($isLoggedIn): ?>
@@ -157,7 +157,7 @@ if ($isLoggedIn) {
 <!-- القائمة المنسدلة للموبايل -->
 <div class="navbar-mobile-menu" id="navbarMobileMenu">
     <div class="mobile-menu-content">
-        <a href="./" class="mobile-link">الرئيسية</a>
+        <a href="./" class="mobile-link">الرئيسة</a>
         <a href="members" class="mobile-link">الأعضاء</a>
         
         <?php if ($isLoggedIn): ?>
@@ -317,8 +317,8 @@ if ($isLoggedIn) {
 }
 
 .nav-link:hover {
-    background: #F3F4F6;
-    color: #0891E6;
+    background: #00A6FB;
+    color: #FFFFFF;
 }
 
 /* ========================================
@@ -366,13 +366,13 @@ if ($isLoggedIn) {
 }
 
 .apps-toggle:hover {
-    background: #F3F4F6;
-    color: #0891E6;
+    background: #00A6FB;
+    color: #FFFFFF;
 }
 
 .apps-toggle.active {
-    background: #E0F2FE;
-    color: #0891E6;
+    background: #00A6FB;
+    color: #FFFFFF;
 }
 
 .apps-toggle svg {
@@ -442,7 +442,7 @@ if ($isLoggedIn) {
 }
 
 .app-item:hover {
-    background: rgb(252, 252, 252);
+    background: #e3f2fd;
     color:rgb(0, 0, 0);
     /*transform: translateY(-4px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
@@ -478,7 +478,7 @@ if ($isLoggedIn) {
 }
 
 .app-logout:hover {
-    background: #EF4444;
+    background:rgb(238, 43, 43);
     color: #FFFFFF;
     /*box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);*/
 }
@@ -604,7 +604,7 @@ if ($isLoggedIn) {
 }
 
 .mobile-link.mobile-logout {
-    background: #EF4444;
+    background: #DC2626;
     color: #FFFFFF;
     text-align: center;
     justify-content: center;
@@ -729,7 +729,7 @@ function updateNavbarDate() {
     const hijriEl = document.getElementById('navbar-hijri-date');
     const gregorianEl = document.getElementById('navbar-gregorian-date');
     
-    if (dayEl) dayEl.textContent = dayName + ':';
+    if (dayEl) dayEl.textContent = dayName;
     if (hijriEl) hijriEl.textContent = arabicNumbers(hijriDate);
     if (gregorianEl) gregorianEl.textContent = arabicNumbers(gregorianDate);
 }
