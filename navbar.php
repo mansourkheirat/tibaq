@@ -40,59 +40,59 @@ $siteName = getSiteName(); // استخراج عنوان الموقع من قاع
 <nav class="unified-navbar" id="unifiedNavbar">
     <div class="navbar-container">
         
-        <!-- التاريخ الهجري والميلادي - أقصى اليمين -->
-        <div class="navbar-date">
-            <span id="navbar-day-name" class="day-name">جاري التحميل...</span>
-            <div class="dates-column">
-                <div class="date-row">
-                    <span id="navbar-hijri-date" class="date-text">جاري التحميل...</span>
-                    <span class="date-label">هجري</span>
-                </div>
-                <div class="date-row">
-                    <span id="navbar-gregorian-date" class="date-text">جاري التحميل...</span>
-                    <span class="date-label">نصراني</span>
-                </div>
-            </div>
-        </div>
-
         <!-- الشعار - الوسط -->
         <a href="./" class="navbar-logo">
-            <svg class="logo-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <!-- سلسلة متصلة ترمز للإسناد والتسلسل الحديثي -->
+            <svg class="logo-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="perspective: 1000px;">
+                <!-- شعار كتاب مفتوح مع ورقة تحتوي على كتابة - يرمز للإسناد الحديثي والعلم -->
                 <defs>
-                    <linearGradient id="chainGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                         <stop offset="0%" style="stop-color:#0891E6;stop-opacity:1" />
                         <stop offset="100%" style="stop-color:#0284C7;stop-opacity:1" />
                     </linearGradient>
                 </defs>
-                <!-- حلقات السلسلة الأولى (الإسناد) -->
-                <circle cx="30" cy="35" r="8" fill="none" stroke="url(#chainGradient)" stroke-width="3"/>
-                <circle cx="50" cy="35" r="8" fill="none" stroke="url(#chainGradient)" stroke-width="3"/>
-                <circle cx="70" cy="35" r="8" fill="none" stroke="url(#chainGradient)" stroke-width="3"/>
                 
-                <!-- خطوط الربط بين الحلقات -->
-                <line x1="38" y1="35" x2="42" y2="35" stroke="url(#chainGradient)" stroke-width="3"/>
-                <line x1="58" y1="35" x2="62" y2="35" stroke="url(#chainGradient)" stroke-width="3"/>
+                <!-- الكتاب الخارجي -->
+                <path d="M 15 25 Q 50 20 85 25 L 85 75 Q 50 80 15 75 Z" fill="#F3F4F6" stroke="#0891E6" stroke-width="2"/>
                 
-                <!-- حلقات السلسلة الثانية (التسلسل الزمني) -->
-                <circle cx="30" cy="65" r="8" fill="none" stroke="url(#chainGradient)" stroke-width="3"/>
-                <circle cx="50" cy="65" r="8" fill="none" stroke="url(#chainGradient)" stroke-width="3"/>
-                <circle cx="70" cy="65" r="8" fill="none" stroke="url(#chainGradient)" stroke-width="3"/>
+                <!-- الصفحة اليسرى من الكتاب -->
+                <path d="M 15 28 L 50 26 L 50 72 L 15 75 Z" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="1.5"/>
                 
-                <!-- خطوط الربط بين الحلقات السفلى -->
-                <line x1="38" y1="65" x2="42" y2="65" stroke="url(#chainGradient)" stroke-width="3"/>
-                <line x1="58" y1="65" x2="62" y2="65" stroke="url(#chainGradient)" stroke-width="3"/>
+                <!-- الصفحة اليمنى من الكتاب -->
+                <path d="M 50 26 L 85 28 L 85 75 L 50 72 Z" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="1.5"/>
                 
-                <!-- الخطوط العمودية التي تربط السلسلتين (الترابط) -->
-                <line x1="30" y1="43" x2="30" y2="57" stroke="url(#chainGradient)" stroke-width="2"/>
-                <line x1="50" y1="43" x2="50" y2="57" stroke="url(#chainGradient)" stroke-width="2"/>
-                <line x1="70" y1="43" x2="70" y2="57" stroke="url(#chainGradient)" stroke-width="2"/>
+                <!-- خطوط النص على الصفحة اليسرى (ترمز للكتابة والسند) -->
+                <line x1="22" y1="36" x2="42" y2="36" stroke="#0891E6" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+                <line x1="22" y1="44" x2="42" y2="44" stroke="#0891E6" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+                <line x1="22" y1="52" x2="42" y2="52" stroke="#0891E6" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+                <line x1="22" y1="60" x2="36" y2="60" stroke="#0891E6" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
                 
-                <!-- نقطة مركزية ترمز للعلم الحديثي -->
-                <circle cx="50" cy="50" r="3" fill="url(#chainGradient)"/>
+                <!-- خطوط النص على الصفحة اليمنى -->
+                <line x1="58" y1="36" x2="78" y2="36" stroke="#0284C7" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+                <line x1="58" y1="44" x2="78" y2="44" stroke="#0284C7" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+                <line x1="58" y1="52" x2="78" y2="52" stroke="#0284C7" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+                <line x1="58" y1="60" x2="72" y2="60" stroke="#0284C7" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+                
+                <!-- ختم أو شارة في منتصف الكتاب (ترمز للإجازة والتصديق) -->
+                <circle cx="50" cy="50" r="6" fill="url(#logoGradient)"/>
+                <circle cx="50" cy="50" r="4" fill="none" stroke="#FFFFFF" stroke-width="1.5"/>
+                
+                <!-- خط معبر في الختم -->
+                <line x1="46" y1="50" x2="54" y2="50" stroke="#FFFFFF" stroke-width="1"/>
+                <line x1="50" y1="46" x2="50" y2="54" stroke="#FFFFFF" stroke-width="1"/>
             </svg>
             <span class="logo-text"><?php echo htmlspecialchars($siteName); ?></span>
         </a>
+
+        <!-- التاريخ الهجري والميلادي - أقصى اليمين -->
+        <div class="navbar-date">
+            <span id="navbar-day-name" class="day-name">جاري التحميل...</span>
+            <span class="date-separator">|</span>
+            <span id="navbar-hijri-date" class="date-text">جاري التحميل...</span>
+            <span class="date-label">هجري</span>
+            <span class="date-separator">-</span>
+            <span id="navbar-gregorian-date" class="date-text">جاري التحميل...</span>
+            <span class="date-label">نصراني</span>
+        </div>
 
         <!-- الأزرار - أقصى اليسار -->
         <div class="navbar-actions">
@@ -129,12 +129,23 @@ $siteName = getSiteName(); // استخراج عنوان الموقع من قاع
                             <div class="apps-dropdown" id="appsDropdown">
                                 <div class="apps-container">
                                     <!-- صف أول -->
-                                    <a href="dashboard" class="app-item" title="لوحتي">
+                                    <a href="dashboard" class="app-item" title="الإعدادات">
                                         <svg class="app-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                            <path d="M12 1v6m0 6v6"></path>
+                                            <path d="M4.22 4.22l4.24 4.24m3.08 3.08l4.24 4.24"></path>
+                                            <path d="M1 12h6m6 0h6"></path>
+                                            <path d="M4.22 19.78l4.24-4.24m3.08-3.08l4.24-4.24"></path>
                                         </svg>
-                                        <span class="app-name">لوحتي</span>
+                                        <span class="app-name">الإعدادات</span>
+                                    </a>
+                                    
+                                    <a href="edit-user" class="app-item" title="تعديل البيانات">
+                                        <svg class="app-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                        </svg>
+                                        <span class="app-name">البيانات</span>
                                     </a>
                                     
                                     <a href="change-password" class="app-item" title="تغيير كلمة المرور">
@@ -143,14 +154,6 @@ $siteName = getSiteName(); // استخراج عنوان الموقع من قاع
                                             <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                                         </svg>
                                         <span class="app-name">الأمان</span>
-                                    </a>
-                                    
-                                    <a href="edit-user" class="app-item" title="تعديل البيانات">
-                                        <svg class="app-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                                        </svg>
-                                        <span class="app-name">بيانات</span>
                                     </a>
                                     
                                     <!-- صف ثاني -->
@@ -177,7 +180,7 @@ $siteName = getSiteName(); // استخراج عنوان الموقع من قاع
                                             <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
                                             <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                                         </svg>
-                                        <span class="app-name">المسندين</span>
+                                        <span class="app-name">المسندون</span>
                                     </a>
                                     
                                     <!-- صف ثالث -->
@@ -315,7 +318,8 @@ $siteName = getSiteName(); // استخراج عنوان الموقع من قاع
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 20px;
+    gap: 40px;
+    position: relative;
 }
 
 /* ========================================
@@ -324,7 +328,7 @@ $siteName = getSiteName(); // استخراج عنوان الموقع من قاع
 .navbar-date {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 6px;
     font-size: 13px;
     color: #6B7280;
     white-space: nowrap;
@@ -334,18 +338,6 @@ $siteName = getSiteName(); // استخراج عنوان الموقع من قاع
 .day-name {
     font-weight: 600;
     color: #374151;
-}
-
-.dates-column {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.date-row {
-    display: flex;
-    align-items: center;
-    gap: 6px;
 }
 
 .date-text {
@@ -358,6 +350,11 @@ $siteName = getSiteName(); // استخراج عنوان الموقع من قاع
     font-weight: 500;
 }
 
+.date-separator {
+    color: #D1D5DB;
+    font-weight: 400;
+}
+
 /* ========================================
    الشعار - الوسط
    ======================================== */
@@ -368,24 +365,45 @@ $siteName = getSiteName(); // استخراج عنوان الموقع من قاع
     text-decoration: none;
     font-size: 16px;
     font-weight: 700;
-    color: #0891E6;
-    transition: all 0.3s;
+    color: #000000;
+    transition: all 0.3s ease;
     flex-shrink: 0;
-    margin: 0 auto;
+    order: 2;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 .navbar-logo:hover {
-    transform: scale(1.05);
+    color: #0891E6;
+}
+
+.navbar-logo:hover .logo-icon {
+    animation: logoRotate 0.6s ease-in-out;
 }
 
 .logo-icon {
     width: 36px;
     height: 36px;
     flex-shrink: 0;
+    transition: all 0.3s ease;
 }
 
 .logo-text {
     font-size: 16px;
+    transition: color 0.3s ease;
+}
+
+@keyframes logoRotate {
+    0% {
+        transform: rotateY(0deg) scale(1);
+    }
+    50% {
+        transform: rotateY(180deg) scale(1.1);
+    }
+    100% {
+        transform: rotateY(360deg) scale(1);
+    }
 }
 
 /* ========================================
@@ -395,8 +413,8 @@ $siteName = getSiteName(); // استخراج عنوان الموقع من قاع
     display: flex;
     align-items: center;
     gap: 0;
-    margin-right: auto;
     flex-shrink: 0;
+    order: 3;
 }
 
 .navbar-menu {

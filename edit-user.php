@@ -36,12 +36,12 @@ $currentUser = $userData[0];
 $canChangeUsername = false;
 $daysUntilChange = 0;
 
-if ($currentUser['role'] === 'admin' || $currentUser['role'] === 'moderator') {
+if ($currentUser['role'] === 'admin' || $currentUser['role'] === 'super_admin' || $currentUser['role'] === 'moderator') {
     // المدير والمشرف يمكنهم التغيير في أي وقت
     $canChangeUsername = true;
 } else {
     // المستخدم العادي: مرة كل 3 أشهر
-    if ($currentUser['username_last_changed']) {
+    if (!empty($currentUser['username_last_changed'])) {
         $lastChanged = new DateTime($currentUser['username_last_changed']);
         $now = new DateTime();
         $threeMonthsAgo = (clone $now)->modify('-3 months');
@@ -102,7 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 $_SESSION['username'] = $new_username;
                                 
                                 // تسجيل في Audit Log
-                                $db->execute(
+                                $logResult = $db->execute(
                                     "INSERT INTO TI_audit_log (user_id, action, table_name, record_id, old_values, new_values, ip_address) 
                                      VALUES (?, 'username_changed', 'TI_users', ?, ?, ?, ?)",
                                     [
@@ -110,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         $user['id'],
                                         $currentUser['username'],
                                         $new_username,
-                                        $_SERVER['REMOTE_ADDR']
+                                        $_SERVER['REMOTE_ADDR'] ?? ''
                                     ]
                                 );
                             }
@@ -120,13 +120,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             
             // التحقق من تغيير البريد الإلكتروني
-            // إذا كان المدير العام، قارن مع بريد الموقع
             $currentEmail = ($currentUser['role'] === 'super_admin') ? getSiteEmail() : $currentUser['email'];
             if ($new_email !== $currentEmail) {
                 if (!filter_var($new_email, FILTER_VALIDATE_EMAIL)) {
                     $errors[] = "البريد الإلكتروني غير صالح";
                 } else {
-                    // إذا كان المدير العام، يجب تحديث بريد الموقع في قاعدة البيانات
+                    // إذا كان المدير العام، يجب تحديث بريد الموقع
                     if ($currentUser['role'] === 'super_admin') {
                         // تحديث بريد الموقع في ti_settings
                         $updateSiteEmail = "INSERT INTO ti_settings (setting_key, setting_value, setting_type, category) 
@@ -137,14 +136,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $_SESSION['email'] = $new_email;
                             
                             // تسجيل في Audit Log
-                            $db->execute(
+                            $logResult = $db->execute(
                                 "INSERT INTO TI_audit_log (user_id, action, table_name, record_id, old_values, new_values, ip_address) 
                                  VALUES (?, 'site_email_changed', 'ti_settings', 0, ?, ?, ?)",
                                 [
                                     $user['id'],
                                     $currentEmail,
                                     $new_email,
-                                    $_SERVER['REMOTE_ADDR']
+                                    $_SERVER['REMOTE_ADDR'] ?? ''
                                 ]
                             );
                         } else {
@@ -165,7 +164,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 $_SESSION['email'] = $new_email;
                                 
                                 // تسجيل في Audit Log
-                                $db->execute(
+                                $logResult = $db->execute(
                                     "INSERT INTO TI_audit_log (user_id, action, table_name, record_id, old_values, new_values, ip_address) 
                                      VALUES (?, 'email_changed', 'TI_users', ?, ?, ?, ?)",
                                     [
@@ -173,9 +172,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         $user['id'],
                                         $currentUser['email'],
                                         $new_email,
-                                        $_SERVER['REMOTE_ADDR']
-                                ]
-                            );
+                                        $_SERVER['REMOTE_ADDR'] ?? ''
+                                    ]
+                                );
+                            }
                         }
                     }
                 }
@@ -194,7 +194,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $csrf_token = $auth->generateCsrfToken();
-require_once 'site-functions.php';
 ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -242,6 +241,7 @@ require_once 'site-functions.php';
             margin-bottom: 20px;
             border-radius: 8px;
             font-size: 14px;
+            list-style-position: inside;
         }
         
         .alert-error {
@@ -268,6 +268,15 @@ require_once 'site-functions.php';
             color: #1976d2;
         }
         
+        .alert ul {
+            margin: 10px 0 0 20px;
+            padding: 0;
+        }
+        
+        .alert li {
+            margin: 5px 0;
+        }
+        
         .form-group {
             margin-bottom: 20px;
         }
@@ -286,6 +295,7 @@ require_once 'site-functions.php';
             border: 2px solid var(--border-color);
             border-radius: 10px;
             font-size: 15px;
+            box-sizing: border-box;
             transition: all 0.3s;
         }
         
@@ -438,7 +448,7 @@ require_once 'site-functions.php';
             <?php if (!empty($errors)): ?>
                 <div class="alert alert-error">
                     <strong>⚠️ خطأ:</strong>
-                    <ul style="margin: 10px 0 0 0; padding-right: 20px;">
+                    <ul>
                         <?php foreach ($errors as $error): ?>
                             <li><?php echo htmlspecialchars($error); ?></li>
                         <?php endforeach; ?>
@@ -471,7 +481,6 @@ require_once 'site-functions.php';
                     <div class="info-item">
                         <span class="info-label">البريد الإلكتروني الحالي:</span>
                         <span class="info-value" style="direction: ltr; text-align: right;"><?php 
-                            // إذا كان المدير العام، استخدم بريد الموقع من قاعدة البيانات
                             $displayEmail = ($currentUser['role'] === 'super_admin') ? getSiteEmail() : $currentUser['email'];
                             echo htmlspecialchars($displayEmail); 
                         ?></span>
@@ -481,7 +490,7 @@ require_once 'site-functions.php';
                         <span class="info-label">نوع الحساب:</span>
                         <span class="info-value">
                             <?php
-                            if ($currentUser['role'] === 'admin') {
+                            if ($currentUser['role'] === 'super_admin' || $currentUser['role'] === 'admin') {
                                 echo '<span class="badge badge-admin">👑 مدير</span>';
                             } elseif ($currentUser['role'] === 'moderator') {
                                 echo '<span class="badge badge-moderator">🛡️ مشرف</span>';
@@ -492,7 +501,7 @@ require_once 'site-functions.php';
                         </span>
                     </div>
 
-                    <?php if ($currentUser['username_last_changed']): ?>
+                    <?php if (!empty($currentUser['username_last_changed'])): ?>
                     <div class="info-item">
                         <span class="info-label">آخر تغيير لاسم المستخدم:</span>
                         <span class="info-value"><?php echo date('Y-m-d H:i', strtotime($currentUser['username_last_changed'])); ?></span>
@@ -501,7 +510,7 @@ require_once 'site-functions.php';
                 </div>
 
                 <!-- حالة تغيير اسم المستخدم -->
-                <?php if ($currentUser['role'] !== 'admin' && $currentUser['role'] !== 'moderator'): ?>
+                <?php if ($currentUser['role'] !== 'admin' && $currentUser['role'] !== 'super_admin' && $currentUser['role'] !== 'moderator'): ?>
                 <div class="username-status <?php echo $canChangeUsername ? 'allowed' : ''; ?>">
                     <?php if ($canChangeUsername): ?>
                         <strong>✅ يمكنك تغيير اسم المستخدم الآن</strong>
@@ -514,7 +523,7 @@ require_once 'site-functions.php';
                 </div>
                 <?php else: ?>
                 <div class="alert alert-info">
-                    <strong>👑 صلاحيات خاصة:</strong> بصفتك <?php echo $currentUser['role'] === 'admin' ? 'مديراً' : 'مشرفاً'; ?>، يمكنك تغيير اسم المستخدم في أي وقت
+                    <strong>👑 صلاحيات خاصة:</strong> بصفتك <?php echo in_array($currentUser['role'], ['admin', 'super_admin']) ? 'مديراً' : 'مشرفاً'; ?>، يمكنك تغيير اسم المستخدم في أي وقت
                 </div>
                 <?php endif; ?>
             </div>
@@ -547,7 +556,6 @@ require_once 'site-functions.php';
                         <label for="email">البريد الإلكتروني الجديد</label>
                         <input type="email" id="email" name="email" 
                                value="<?php 
-                                   // إذا كان المدير العام، استخدم بريد الموقع من قاعدة البيانات
                                    $displayEmail = ($currentUser['role'] === 'super_admin') ? getSiteEmail() : $currentUser['email'];
                                    echo htmlspecialchars($displayEmail); 
                                ?>"
@@ -574,7 +582,7 @@ require_once 'site-functions.php';
             <!-- ملاحظات أمنية -->
             <div class="content-box">
                 <h3 style="color: var(--dark-color); margin-bottom: 15px;">🔒 ملاحظات أمنية</h3>
-                <ul style="line-height: 2; color: var(--text-secondary);">
+                <ul style="line-height: 2; color: var(--text-secondary); padding-right: 20px;">
                     <li>سيتم تسجيل جميع التغييرات في سجل التدقيق</li>
                     <li>عند تغيير البريد الإلكتروني، تأكد من إمكانية الوصول إليه</li>
                     <li>اسم المستخدم يجب أن يكون فريداً ولم يُستخدم من قبل</li>
