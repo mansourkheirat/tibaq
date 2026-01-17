@@ -38,9 +38,17 @@ if ($isLoggedIn) {
         
         <!-- التاريخ الهجري والميلادي - أقصى اليمين -->
         <div class="navbar-date">
-            <span id="navbar-hijri-date" class="date-text">جاري التحميل...</span>
-            <span class="date-separator">|</span>
-            <span id="navbar-gregorian-date" class="date-text">جاري التحميل...</span>
+            <span id="navbar-day-name" class="day-name">جاري التحميل...</span>
+            <div class="dates-column">
+                <div class="date-row">
+                    <span id="navbar-hijri-date" class="date-text">جاري التحميل...</span>
+                    <span class="date-label">هجري</span>
+                </div>
+                <div class="date-row">
+                    <span id="navbar-gregorian-date" class="date-text">جاري التحميل...</span>
+                    <span class="date-label">نصراني</span>
+                </div>
+            </div>
         </div>
 
         <!-- الشعار - الوسط -->
@@ -63,80 +71,67 @@ if ($isLoggedIn) {
                         <a href="CP" class="nav-link">الإدارة</a>
                     <?php endif; ?>
                     
-                    <a href="dashboard" class="nav-link">لوحتي</a>
-                    
                     <div class="nav-user-section">
-                        <a href="<?php echo htmlspecialchars($user['username']); ?>" class="nav-link user-profile" 
-                           style="background: <?php echo htmlspecialchars($userRoleColor); ?>; color: #FFFFFF;">
-                            <span><?php echo htmlspecialchars($user['fullname']); ?></span>
-                        </a>
-                        
                         <!-- أيقونة التطبيقات -->
-                        <button class="apps-toggle" id="appsToggle" onclick="toggleAppsMenu(event)">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <!-- شبكة التطبيقات 3x3 -->
-                                <rect x="3" y="3" width="3" height="3"></rect>
-                                <rect x="10.5" y="3" width="3" height="3"></rect>
-                                <rect x="18" y="3" width="3" height="3"></rect>
-                                <rect x="3" y="10.5" width="3" height="3"></rect>
-                                <rect x="10.5" y="10.5" width="3" height="3"></rect>
-                                <rect x="18" y="10.5" width="3" height="3"></rect>
-                                <rect x="3" y="18" width="3" height="3"></rect>
-                                <rect x="10.5" y="18" width="3" height="3"></rect>
-                                <rect x="18" y="18" width="3" height="3"></rect>
-                            </svg>
-                        </button>
-                        
-                        <!-- قائمة التطبيقات المنسدلة -->
-                        <div class="apps-dropdown" id="appsDropdown">
-                            <div class="apps-container">
-                                <!-- صف أول -->
-                                <a href="dashboard" class="app-item" title="لوحتي">
-                                    <span class="app-icon">📊</span>
-                                    <span class="app-name">لوحتي</span>
-                                </a>
+                        <div class="apps-wrapper">
+                            <button class="apps-toggle" id="appsToggle" onclick="toggleAppsMenu(event)">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <!-- شبكة التطبيقات 3x3 -->
+                                    <rect x="3" y="3" width="3" height="3"></rect>
+                                    <rect x="10.5" y="3" width="3" height="3"></rect>
+                                    <rect x="18" y="3" width="3" height="3"></rect>
+                                    <rect x="3" y="10.5" width="3" height="3"></rect>
+                                    <rect x="10.5" y="10.5" width="3" height="3"></rect>
+                                    <rect x="18" y="10.5" width="3" height="3"></rect>
+                                    <rect x="3" y="18" width="3" height="3"></rect>
+                                    <rect x="10.5" y="18" width="3" height="3"></rect>
+                                    <rect x="18" y="18" width="3" height="3"></rect>
+                                </svg>
+                            </button>
+                            
+                            <!-- قائمة التطبيقات المنسدلة -->
+                            <div class="apps-dropdown" id="appsDropdown">
+                                <div class="apps-container">
+                                    <!-- صف أول -->
+                                    <a href="dashboard" class="app-item" title="لوحتي">
+                                        <span class="app-icon">📊</span>
+                                        <span class="app-name">لوحتي</span>
+                                    </a>
+                                    
+                                    <a href="change-password" class="app-item" title="تغيير كلمة المرور">
+                                        <span class="app-icon">🔐</span>
+                                        <span class="app-name">الأمان</span>
+                                    </a>
+                                    
+                                    <a href="edit-user" class="app-item" title="تعديل البيانات">
+                                        <span class="app-icon">✏️</span>
+                                        <span class="app-name">بيانات</span>
+                                    </a>
+                                    
+                                    <!-- صف ثاني - للمسؤولين فقط -->
+                                    <?php if (in_array($user['role'], ['super_admin', 'admin'])): ?>
+                                    <a href="administration.php" class="app-item" title="لوحة الإدارة المتقدمة">
+                                        <span class="app-icon">👑</span>
+                                        <span class="app-name">متقدم</span>
+                                    </a>
+                                    
+                                    <div style="flex: 1;"></div>
+                                    <div style="flex: 1;"></div>
+                                    <?php endif; ?>
+                                </div>
                                 
-                                <a href="members" class="app-item" title="الأعضاء">
-                                    <span class="app-icon">👥</span>
-                                    <span class="app-name">الأعضاء</span>
+                                <!-- زر تسجيل الخروج -->
+                                <a href="logout" class="app-logout" 
+                                   onclick="return confirm('هل أنت متأكد من تسجيل الخروج؟')">
+                                    <span class="app-logout-icon">🚪</span>
+                                    <span class="app-logout-text">تسجيل الخروج</span>
                                 </a>
-                                
-                                <a href="change-password" class="app-item" title="تغيير كلمة المرور">
-                                    <span class="app-icon">🔐</span>
-                                    <span class="app-name">الأمان</span>
-                                </a>
-                                
-                                <!-- صف ثاني -->
-                                <?php if (in_array($user['role'], ['super_admin', 'admin'])): ?>
-                                <a href="CP" class="app-item" title="الإدارة">
-                                    <span class="app-icon">⚙️</span>
-                                    <span class="app-name">الإدارة</span>
-                                </a>
-                                
-                                <a href="administration.php" class="app-item" title="لوحة الإدارة المتقدمة">
-                                    <span class="app-icon">👑</span>
-                                    <span class="app-name">متقدم</span>
-                                </a>
-                                
-                                <a href="edit-user" class="app-item" title="تعديل البيانات">
-                                    <span class="app-icon">✏️</span>
-                                    <span class="app-name">بيانات</span>
-                                </a>
-                                <?php else: ?>
-                                <a href="edit-user" class="app-item" title="تعديل البيانات">
-                                    <span class="app-icon">✏️</span>
-                                    <span class="app-name">بيانات</span>
-                                </a>
-                                
-                                <div style="flex: 1;"></div>
-                                <div style="flex: 1;"></div>
-                                <?php endif; ?>
                             </div>
                         </div>
                         
-                        <a href="logout" class="nav-link nav-logout" 
-                           onclick="return confirm('هل أنت متأكد من تسجيل الخروج؟')">
-                            تسجيل الخروج
+                        <a href="<?php echo htmlspecialchars($user['username']); ?>" class="nav-link user-profile" 
+                           style="background: <?php echo htmlspecialchars($userRoleColor); ?>; color: #FFFFFF;">
+                            <span><?php echo htmlspecialchars($user['fullname']); ?></span>
                         </a>
                     </div>
                 <?php else: ?>
@@ -227,18 +222,39 @@ if ($isLoggedIn) {
 .navbar-date {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
     font-size: 13px;
     color: #6B7280;
     white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.day-name {
+    font-weight: 600;
+    color: #374151;
+    min-width: auto;
+}
+
+.dates-column {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.date-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .date-text {
     font-weight: 500;
 }
 
-.date-separator {
-    color: #D1D5DB;
+.date-label {
+    font-size: 11px;
+    color: #9CA3AF;
+    font-weight: 500;
 }
 
 /* ========================================
@@ -253,6 +269,8 @@ if ($isLoggedIn) {
     font-weight: 700;
     color: #0891E6;
     transition: all 0.3s;
+    flex-shrink: 0;
+    margin: 0 auto;
 }
 
 .navbar-logo:hover {
@@ -273,7 +291,9 @@ if ($isLoggedIn) {
 .navbar-actions {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 0;
+    margin-right: auto;
+    flex-shrink: 0;
 }
 
 .navbar-menu {
@@ -307,7 +327,7 @@ if ($isLoggedIn) {
 .nav-user-section {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
 }
 
 /* زر الملف الشخصي */
@@ -324,8 +344,12 @@ if ($isLoggedIn) {
 }
 
 /* ========================================
-   أيقونة التطبيقات
+   أيقونة التطبيقات والقائمة المنسدلة
    ======================================== */
+.apps-wrapper {
+    position: relative;
+}
+
 .apps-toggle {
     width: 40px;
     height: 40px;
@@ -363,7 +387,8 @@ if ($isLoggedIn) {
 .apps-dropdown {
     position: absolute;
     top: 100%;
-    left: 0;
+    right: 50%;
+    transform: translateX(50%);
     background: white;
     border-radius: 16px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
@@ -377,17 +402,18 @@ if ($isLoggedIn) {
 }
 
 .apps-dropdown.active {
-    display: block;
+    display: flex;
+    flex-direction: column;
 }
 
 @keyframes dropdownSlide {
     from {
         opacity: 0;
-        transform: translateY(-10px);
+        transform: translateX(50%) translateY(-10px);
     }
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateX(50%) translateY(0);
     }
 }
 
@@ -395,6 +421,9 @@ if ($isLoggedIn) {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 12px;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #E5E7EB;
 }
 
 .app-item {
@@ -406,18 +435,18 @@ if ($isLoggedIn) {
     padding: 16px 12px;
     border-radius: 12px;
     text-decoration: none;
-    color: #374151;
+    color:rgb(0, 0, 0);
     transition: all 0.3s;
-    background: #F9FAFB;
-    border: 1px solid #E5E7EB;
+    background:white;
+    /*border: 1px solid #E5E7EB;*/
 }
 
 .app-item:hover {
-    background: #E0F2FE;
-    color: #0891E6;
-    transform: translateY(-4px);
+    background: rgb(252, 252, 252);
+    color:rgb(0, 0, 0);
+    /*transform: translateY(-4px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    border-color: #0891E6;
+    border-color: #0891E6;*/
 }
 
 .app-icon {
@@ -431,17 +460,35 @@ if ($isLoggedIn) {
     word-break: break-word;
 }
 
-/* زر تسجيل الخروج */
-.nav-link.nav-logout {
-    background: #EF4444;
-    color: #FFFFFF;
-    font-weight: 600;
-    margin-right: 8px;
-}
-
-.nav-link.nav-logout:hover {
+/* زر تسجيل الخروج داخل القائمة */
+.app-logout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    text-decoration: none;
     background: #DC2626;
     color: #FFFFFF;
+    font-weight: 600;
+    font-size: 14px;
+    /*transition: all 0.3s;
+    border: 1px solid #FECACA;*/
+}
+
+.app-logout:hover {
+    background: #EF4444;
+    color: #FFFFFF;
+    /*box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);*/
+}
+
+.app-logout-icon {
+    font-size: 18px;
+}
+
+.app-logout-text {
+    font-size: 14px;
 }
 
 /* زر الدخول */
@@ -627,8 +674,6 @@ if ($isLoggedIn) {
     
     .apps-dropdown {
         min-width: 240px;
-        right: 0;
-        left: auto;
     }
 }
 
@@ -636,12 +681,8 @@ if ($isLoggedIn) {
     .navbar-date {
         flex-direction: column;
         gap: 2px;
-        align-items: flex-start;
+        align-items: flex-end;
         font-size: 10px;
-    }
-    
-    .date-separator {
-        display: none;
     }
     
     .apps-container {
@@ -659,7 +700,11 @@ if ($isLoggedIn) {
 function updateNavbarDate() {
     const now = new Date();
     
-    // التاريخ الميلادي
+    // اسم اليوم بالعربية
+    const days = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+    const dayName = days[now.getDay()];
+    
+    // التاريخ الميلادي مع أسماء الشهور
     const gregorianDate = now.toLocaleDateString('ar-DZ', {
         year: 'numeric',
         month: 'long',
@@ -667,18 +712,26 @@ function updateNavbarDate() {
         calendar: 'gregory'
     });
     
-    // التاريخ الهجري
+    // التاريخ الهجري مع أسماء الشهور
     const hijriDate = now.toLocaleDateString('ar-DZ-u-ca-islamic-umalqura', {
         year: 'numeric',
         month: 'long',
         day: 'numeric'
-    }).replace(' هـ', '').replace('،', '');
+    });
     
+    // تحويل الأرقام للعربية
+    function arabicNumbers(str) {
+        const arabicNums = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+        return str.replace(/\d/g, d => arabicNums[d]);
+    }
+    
+    const dayEl = document.getElementById('navbar-day-name');
     const hijriEl = document.getElementById('navbar-hijri-date');
     const gregorianEl = document.getElementById('navbar-gregorian-date');
     
-    if (hijriEl) hijriEl.textContent = hijriDate + ' هـ';
-    if (gregorianEl) gregorianEl.textContent = gregorianDate;
+    if (dayEl) dayEl.textContent = dayName + ':';
+    if (hijriEl) hijriEl.textContent = arabicNumbers(hijriDate);
+    if (gregorianEl) gregorianEl.textContent = arabicNumbers(gregorianDate);
 }
 
 // إضافة الحد عند التمرير
