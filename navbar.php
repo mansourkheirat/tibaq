@@ -30,6 +30,10 @@ if ($isLoggedIn) {
     $user = $auth->getCurrentUser();
     $userRoleColor = getRoleColor($user['role']);
 }
+
+// الحصول على عنوان الموقع من قاعدة البيانات
+require_once 'site-functions.php';
+$siteName = getSiteName(); // استخراج عنوان الموقع من قاعدة البيانات
 ?>
 
 <!-- شريط القائمة المتحرك الموحد -->
@@ -53,8 +57,41 @@ if ($isLoggedIn) {
 
         <!-- الشعار - الوسط -->
         <a href="./" class="navbar-logo">
-            <span class="logo-icon">📊</span>
-            <span class="logo-text">طباق</span>
+            <svg class="logo-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <!-- سلسلة متصلة ترمز للإسناد والتسلسل الحديثي -->
+                <defs>
+                    <linearGradient id="chainGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#0891E6;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#0284C7;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                <!-- حلقات السلسلة الأولى (الإسناد) -->
+                <circle cx="30" cy="35" r="8" fill="none" stroke="url(#chainGradient)" stroke-width="3"/>
+                <circle cx="50" cy="35" r="8" fill="none" stroke="url(#chainGradient)" stroke-width="3"/>
+                <circle cx="70" cy="35" r="8" fill="none" stroke="url(#chainGradient)" stroke-width="3"/>
+                
+                <!-- خطوط الربط بين الحلقات -->
+                <line x1="38" y1="35" x2="42" y2="35" stroke="url(#chainGradient)" stroke-width="3"/>
+                <line x1="58" y1="35" x2="62" y2="35" stroke="url(#chainGradient)" stroke-width="3"/>
+                
+                <!-- حلقات السلسلة الثانية (التسلسل الزمني) -->
+                <circle cx="30" cy="65" r="8" fill="none" stroke="url(#chainGradient)" stroke-width="3"/>
+                <circle cx="50" cy="65" r="8" fill="none" stroke="url(#chainGradient)" stroke-width="3"/>
+                <circle cx="70" cy="65" r="8" fill="none" stroke="url(#chainGradient)" stroke-width="3"/>
+                
+                <!-- خطوط الربط بين الحلقات السفلى -->
+                <line x1="38" y1="65" x2="42" y2="65" stroke="url(#chainGradient)" stroke-width="3"/>
+                <line x1="58" y1="65" x2="62" y2="65" stroke="url(#chainGradient)" stroke-width="3"/>
+                
+                <!-- الخطوط العمودية التي تربط السلسلتين (الترابط) -->
+                <line x1="30" y1="43" x2="30" y2="57" stroke="url(#chainGradient)" stroke-width="2"/>
+                <line x1="50" y1="43" x2="50" y2="57" stroke="url(#chainGradient)" stroke-width="2"/>
+                <line x1="70" y1="43" x2="70" y2="57" stroke="url(#chainGradient)" stroke-width="2"/>
+                
+                <!-- نقطة مركزية ترمز للعلم الحديثي -->
+                <circle cx="50" cy="50" r="3" fill="url(#chainGradient)"/>
+            </svg>
+            <span class="logo-text"><?php echo htmlspecialchars($siteName); ?></span>
         </a>
 
         <!-- الأزرار - أقصى اليسار -->
@@ -62,7 +99,7 @@ if ($isLoggedIn) {
             
             <!-- القائمة الرئيسية للشاشات الكبيرة -->
             <div class="navbar-menu">
-                <a href="./" class="nav-link">الرئيسة</a>
+                <a href="./" class="nav-link">الرئيسية</a>
                 <a href="members" class="nav-link">الأعضاء</a>
                 
                 <?php if ($isLoggedIn): ?>
@@ -76,16 +113,15 @@ if ($isLoggedIn) {
                         <div class="apps-wrapper">
                             <button class="apps-toggle" id="appsToggle" onclick="toggleAppsMenu(event)">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <!-- شبكة التطبيقات 3x3 -->
                                     <rect x="3" y="3" width="3" height="3"></rect>
-                                    <rect x="10.5" y="3" width="3" height="3"></rect>
-                                    <rect x="18" y="3" width="3" height="3"></rect>
-                                    <rect x="3" y="10.5" width="3" height="3"></rect>
-                                    <rect x="10.5" y="10.5" width="3" height="3"></rect>
-                                    <rect x="18" y="10.5" width="3" height="3"></rect>
-                                    <rect x="3" y="18" width="3" height="3"></rect>
-                                    <rect x="10.5" y="18" width="3" height="3"></rect>
-                                    <rect x="18" y="18" width="3" height="3"></rect>
+                                    <rect x="10" y="3" width="3" height="3"></rect>
+                                    <rect x="17" y="3" width="3" height="3"></rect>
+                                    <rect x="3" y="10" width="3" height="3"></rect>
+                                    <rect x="10" y="10" width="3" height="3"></rect>
+                                    <rect x="17" y="10" width="3" height="3"></rect>
+                                    <rect x="3" y="17" width="3" height="3"></rect>
+                                    <rect x="10" y="17" width="3" height="3"></rect>
+                                    <rect x="17" y="17" width="3" height="3"></rect>
                                 </svg>
                             </button>
                             
@@ -94,24 +130,92 @@ if ($isLoggedIn) {
                                 <div class="apps-container">
                                     <!-- صف أول -->
                                     <a href="dashboard" class="app-item" title="لوحتي">
-                                        <span class="app-icon">📊</span>
+                                        <svg class="app-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                                        </svg>
                                         <span class="app-name">لوحتي</span>
                                     </a>
                                     
                                     <a href="change-password" class="app-item" title="تغيير كلمة المرور">
-                                        <span class="app-icon">🔐</span>
+                                        <svg class="app-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                        </svg>
                                         <span class="app-name">الأمان</span>
                                     </a>
                                     
                                     <a href="edit-user" class="app-item" title="تعديل البيانات">
-                                        <span class="app-icon">✏️</span>
+                                        <svg class="app-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                        </svg>
                                         <span class="app-name">بيانات</span>
                                     </a>
                                     
-                                    <!-- صف ثاني - للمسؤولين فقط -->
+                                    <!-- صف ثاني -->
+                                    <a href="tabaaq" class="app-item" title="الطباق">
+                                        <svg class="app-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                                        </svg>
+                                        <span class="app-name">الطباق</span>
+                                    </a>
+                                    
+                                    <a href="asaneed" class="app-item" title="الأسانيد">
+                                        <svg class="app-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"></path>
+                                            <polyline points="10 17 14 13 10 9"></polyline>
+                                        </svg>
+                                        <span class="app-name">الأسانيد</span>
+                                    </a>
+                                    
+                                    <a href="narrators" class="app-item" title="أسماء المسندين">
+                                        <svg class="app-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                            <circle cx="9" cy="7" r="4"></circle>
+                                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                        </svg>
+                                        <span class="app-name">المسندين</span>
+                                    </a>
+                                    
+                                    <!-- صف ثالث -->
+                                    <a href="books" class="app-item" title="أسماء الكتب">
+                                        <svg class="app-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                                        </svg>
+                                        <span class="app-name">الكتب</span>
+                                    </a>
+                                    
+                                    <a href="authors" class="app-item" title="أسماء المؤلفين">
+                                        <svg class="app-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M11 4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2v-7l-5-5"></path>
+                                            <polyline points="9 9 4 9 4 20 20 20 20 9"></polyline>
+                                        </svg>
+                                        <span class="app-name">المؤلفون</span>
+                                    </a>
+                                    
+                                    <a href="licenses" class="app-item" title="الإجازات">
+                                        <svg class="app-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                                            <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                                            <polyline points="7 3 7 8 15 8"></polyline>
+                                        </svg>
+                                        <span class="app-name">الإجازات</span>
+                                    </a>
+                                    
+                                    <!-- صف رابع - للمسؤولين فقط -->
                                     <?php if (in_array($user['role'], ['super_admin', 'admin'])): ?>
                                     <a href="administration.php" class="app-item" title="لوحة الإدارة المتقدمة">
-                                        <span class="app-icon">👑</span>
+                                        <svg class="app-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="1"></circle>
+                                            <path d="M12 1v6m0 6v6"></path>
+                                            <path d="M4.22 4.22l4.24 4.24m3.08 3.08l4.24 4.24"></path>
+                                            <path d="M1 12h6m6 0h6"></path>
+                                            <path d="M4.22 19.78l4.24-4.24m3.08-3.08l4.24-4.24"></path>
+                                        </svg>
                                         <span class="app-name">متقدم</span>
                                     </a>
                                     
@@ -123,7 +227,6 @@ if ($isLoggedIn) {
                                 <!-- زر تسجيل الخروج -->
                                 <a href="logout" class="app-logout" 
                                    onclick="return confirm('هل أنت متأكد من تسجيل الخروج؟')">
-                                    <span class="app-logout-icon">🚪</span>
                                     <span class="app-logout-text">تسجيل الخروج</span>
                                 </a>
                             </div>
@@ -157,7 +260,7 @@ if ($isLoggedIn) {
 <!-- القائمة المنسدلة للموبايل -->
 <div class="navbar-mobile-menu" id="navbarMobileMenu">
     <div class="mobile-menu-content">
-        <a href="./" class="mobile-link">الرئيسة</a>
+        <a href="./" class="mobile-link">الرئيسية</a>
         <a href="members" class="mobile-link">الأعضاء</a>
         
         <?php if ($isLoggedIn): ?>
@@ -200,7 +303,6 @@ if ($isLoggedIn) {
     padding: 12px 0;
 }
 
-/* إضافة الحد عند التمرير */
 .unified-navbar.scrolled {
     box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
     border-bottom: 1px solid #E5E7EB;
@@ -232,7 +334,6 @@ if ($isLoggedIn) {
 .day-name {
     font-weight: 600;
     color: #374151;
-    min-width: auto;
 }
 
 .dates-column {
@@ -263,9 +364,9 @@ if ($isLoggedIn) {
 .navbar-logo {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     text-decoration: none;
-    font-size: 20px;
+    font-size: 16px;
     font-weight: 700;
     color: #0891E6;
     transition: all 0.3s;
@@ -278,11 +379,13 @@ if ($isLoggedIn) {
 }
 
 .logo-icon {
-    font-size: 24px;
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
 }
 
 .logo-text {
-    font-size: 20px;
+    font-size: 16px;
 }
 
 /* ========================================
@@ -330,7 +433,6 @@ if ($isLoggedIn) {
     gap: 8px;
 }
 
-/* زر الملف الشخصي */
 .nav-link.user-profile {
     color: #FFFFFF;
     font-weight: 600;
@@ -344,7 +446,7 @@ if ($isLoggedIn) {
 }
 
 /* ========================================
-   أيقونة التطبيقات والقائمة المنسدلة
+   أيقونة التطبيقات
    ======================================== */
 .apps-wrapper {
     position: relative;
@@ -386,18 +488,17 @@ if ($isLoggedIn) {
    ======================================== */
 .apps-dropdown {
     position: absolute;
-    top: 100%;
+    top: calc(100% + 24px);
     right: 50%;
     transform: translateX(50%);
     background: white;
     border-radius: 16px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
     padding: 16px;
-    min-width: 280px;
-    margin-top: 8px;
+    min-width: 330px;
     display: none;
     z-index: 2000;
-    border: 1px solid #E5E7EB;
+    border: 1px solid #F0F0F0;
     animation: dropdownSlide 0.3s ease;
 }
 
@@ -423,7 +524,7 @@ if ($isLoggedIn) {
     gap: 12px;
     margin-bottom: 12px;
     padding-bottom: 12px;
-    border-bottom: 1px solid #E5E7EB;
+    border-bottom: 1px solid #F0F0F0;
 }
 
 .app-item {
@@ -432,40 +533,38 @@ if ($isLoggedIn) {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    padding: 16px 12px;
+    padding: 14px 10px;
     border-radius: 12px;
     text-decoration: none;
-    color:rgb(0, 0, 0);
+    color: #374151;
     transition: all 0.3s;
-    background:white;
-    /*border: 1px solid #E5E7EB;*/
+    background: #FAFAFA;
 }
 
 .app-item:hover {
-    background: #e3f2fd;
-    color:rgb(0, 0, 0);
-    /*transform: translateY(-4px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    border-color: #0891E6;*/
+    background: #E3F2FD;
+    color: #0891E6;
+    transform: translateY(-2px);
 }
 
 .app-icon {
-    font-size: 28px;
+    width: 28px;
+    height: 28px;
+    stroke: currentColor;
 }
 
 .app-name {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
     text-align: center;
     word-break: break-word;
 }
 
-/* زر تسجيل الخروج داخل القائمة */
+/* زر تسجيل الخروج */
 .app-logout {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
     padding: 12px 16px;
     border-radius: 12px;
     text-decoration: none;
@@ -473,18 +572,14 @@ if ($isLoggedIn) {
     color: #FFFFFF;
     font-weight: 600;
     font-size: 14px;
-    /*transition: all 0.3s;
-    border: 1px solid #FECACA;*/
+    transition: all 0.3s;
+    border: none;
+    cursor: pointer;
 }
 
 .app-logout:hover {
-    background:rgb(238, 43, 43);
-    color: #FFFFFF;
-    /*box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);*/
-}
-
-.app-logout-icon {
-    font-size: 18px;
+    background: rgb(190, 24, 24);
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2);
 }
 
 .app-logout-text {
@@ -624,9 +719,6 @@ if ($isLoggedIn) {
     justify-content: center;
 }
 
-/* ========================================
-   المحتوى الرئيسي
-   ======================================== */
 .main-content {
     margin-top: 61px;
     min-height: calc(100vh - 61px);
@@ -673,7 +765,7 @@ if ($isLoggedIn) {
     }
     
     .apps-dropdown {
-        min-width: 240px;
+        min-width: 280px;
     }
 }
 
@@ -690,7 +782,7 @@ if ($isLoggedIn) {
     }
     
     .apps-dropdown {
-        min-width: 200px;
+        min-width: 240px;
     }
 }
 </style>
@@ -717,7 +809,7 @@ function updateNavbarDate() {
         year: 'numeric',
         month: 'long',
         day: 'numeric'
-    });
+    }).replace(/\s*هـ\s*$/, ''); // حذف حرف هـ من النهاية
     
     // تحويل الأرقام للعربية
     function arabicNumbers(str) {
