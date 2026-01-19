@@ -789,6 +789,31 @@ $hasAnyAccess = $hasFullAccess || $hasLimitedAccess;
             flex-shrink: 0;
         }
 
+        .custom-select-option-icon svg {
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
+            transition: all 0.3s ease;
+        }
+
+        .custom-select-option:hover .custom-select-option-icon svg {
+            stroke-width: 2.5;
+        }
+
+        .custom-select-option.selected .custom-select-option-icon svg {
+            stroke-width: 2.5;
+            filter: drop-shadow(0 0 4px rgba(0, 166, 251, 0.4));
+        }
+
+        .custom-select-trigger .custom-select-icon svg {
+            transition: all 0.3s ease;
+        }
+
+        .custom-select-trigger:hover .custom-select-icon svg,
+        .custom-select-trigger.active .custom-select-icon svg {
+            stroke-width: 2.5;
+        }
+
         .custom-select-option-text {
             flex: 1;
         }
@@ -880,7 +905,7 @@ $hasAnyAccess = $hasFullAccess || $hasLimitedAccess;
             background: white;
             border-radius: 12px;
             padding: 20px;
-            border: 2px solid #e9ecef;
+            border: 1px solid #e9ecef;
             text-align: center;
             transition: all 0.3s;
             position: relative;
@@ -1605,35 +1630,69 @@ $hasAnyAccess = $hasFullAccess || $hasLimitedAccess;
                 
                 <div class="custom-select-wrapper" id="customSelect">
                     <div class="custom-select-trigger" tabindex="0">
-                        <span class="custom-select-icon">📋</span>
+                        <span class="custom-select-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                            </svg>
+                        </span>
                         <span class="custom-select-text">اختر ما يناسبك:</span>
                         <span class="custom-select-arrow"></span>
                     </div>
                     
                     <div class="custom-select-dropdown">
                         <div class="custom-select-options">
-                            <div class="custom-select-option" data-value="alphabetical" data-icon="🔤">
-                                <span class="custom-select-option-icon">🔤</span>
+                            <div class="custom-select-option" data-value="alphabetical" data-icon="sortAlphabetical">
+                                <span class="custom-select-option-icon">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M3 6h18"></path>
+                                        <path d="M3 12h18"></path>
+                                        <path d="M3 18h18"></path>
+                                    </svg>
+                                </span>
                                 <span class="custom-select-option-text">الاسم الكامل</span>
                                 <span class="custom-select-option-check">✓</span>
                             </div>
-                            <div class="custom-select-option" data-value="username" data-icon="🔠">
-                                <span class="custom-select-option-icon">🔠</span>
+                            
+                            <div class="custom-select-option" data-value="username" data-icon="sortUsername">
+                                <span class="custom-select-option-icon">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="8" r="4"></circle>
+                                        <path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"></path>
+                                    </svg>
+                                </span>
                                 <span class="custom-select-option-text">اسم المستخدم</span>
                                 <span class="custom-select-option-check">✓</span>
                             </div>
-                            <div class="custom-select-option" data-value="role" data-icon="👑">
-                                <span class="custom-select-option-icon">👑</span>
+                            
+                            <div class="custom-select-option" data-value="role" data-icon="sortRole">
+                                <span class="custom-select-option-icon">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8m3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"></path>
+                                    </svg>
+                                </span>
                                 <span class="custom-select-option-text">رتبة العضوية</span>
                                 <span class="custom-select-option-check">✓</span>
                             </div>
-                            <div class="custom-select-option" data-value="date_asc" data-icon="📅">
-                                <span class="custom-select-option-icon">📅</span>
+                            
+                            <div class="custom-select-option" data-value="date_asc" data-icon="sortDateAsc">
+                                <span class="custom-select-option-icon">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                                    </svg>
+                                </span>
                                 <span class="custom-select-option-text">الأقدم أولا</span>
                                 <span class="custom-select-option-check">✓</span>
                             </div>
-                            <div class="custom-select-option" data-value="date_desc" data-icon="📆">
-                                <span class="custom-select-option-icon">📆</span>
+                            
+                            <div class="custom-select-option" data-value="date_desc" data-icon="sortDateDesc">
+                                <span class="custom-select-option-icon">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <polyline points="12 6 12 12 16 14"></polyline>
+                                    </svg>
+                                </span>
                                 <span class="custom-select-option-text">الأحدث أولا</span>
                                 <span class="custom-select-option-check">✓</span>
                             </div>

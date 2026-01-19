@@ -36,8 +36,8 @@ define('ROLES', [
     'moderator' => [
         'name' => 'مشرف مساعد',
         'icon' => '🔵',
-        'color' => '#2563eb',
-        'bg_color' => '#dbeafe',
+        'color' => '#166534',
+        'bg_color' => '#dcfce7',
         'level' => 2
     ],
     'user' => [
