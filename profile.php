@@ -5,6 +5,7 @@ checkMaintenanceMode();
 require_once 'Auth.php';
 require_once 'database.php';
 require_once 'site-functions.php';
+require_once 'roles-config.php';
 
 $auth = new Auth();
 $db = Database::getInstance();
@@ -66,9 +67,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
     header('Location: ./');
     exit;
 }
-
-require_once 'roles-config.php';
-require_once 'site-functions.php';
 
 if (!$notFound) {
     $roleInfo = getRoleInfo($profileUser['role']);
@@ -407,6 +405,15 @@ if (!$notFound) {
             margin-bottom: 40px;
         }
         
+        /* Badge الرتبة */
+        .role-badge {
+            display: inline-block;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        
         /* Responsive */
         @media (max-width: 768px) {
             .profile-page {
@@ -503,8 +510,11 @@ if (!$notFound) {
 
                         <div class="profile-name-section">
                             <div class="profile-role-badge">
-                                <span class="badge">
-                                    <?php echo $roleInfo['icon'] . ' ' . $roleInfo['name']; ?>
+                                <?php
+                                $badgeStyle = "background-color: {$roleInfo['bg_color']}; color: {$roleInfo['color']};";
+                                ?>
+                                <span class="badge" style="<?php echo $badgeStyle; ?>">
+                                    <?php echo htmlspecialchars($roleInfo['name']); ?>
                                 </span>
                             </div>
                             <h1><?php echo htmlspecialchars($profileUser['fullname']); ?></h1>
@@ -552,12 +562,23 @@ if (!$notFound) {
                                 <div class="info-label">اسم المستخدم</div>
                                 <div class="info-value ltr">@<?php echo htmlspecialchars($profileUser['username']); ?></div>
                             </div>
+
+                            <div class="info-row">
+                                <div class="info-label">نوع الحساب</div>
+                                <div class="info-value">
+                                    <?php
+                                    $badgeStyle = "background-color: {$roleInfo['bg_color']}; color: {$roleInfo['color']};";
+                                    ?>
+                                    <span class="role-badge" style="<?php echo $badgeStyle; ?>">
+                                        <?php echo htmlspecialchars($roleInfo['name']); ?>
+                                    </span>
+                                </div>
+                            </div>
                             
                             <?php if ($isOwnProfile || ($isLoggedIn && $currentUser['role'] === 'admin')): ?>
                             <div class="info-row">
                                 <div class="info-label">البريد الإلكتروني</div>
                                 <div class="info-value ltr"><?php 
-                                    // إذا كان المدير العام، استخدم بريد الموقع من قاعدة البيانات
                                     $displayEmail = ($profileUser['role'] === 'super_admin') ? getSiteEmail() : $profileUser['email'];
                                     echo htmlspecialchars($displayEmail); 
                                 ?></div>

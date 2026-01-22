@@ -9,6 +9,8 @@ checkMaintenanceMode();
 
 require_once 'Auth.php';
 require_once 'database.php';
+require_once 'roles-config.php';
+require_once 'site-functions.php';
 
 $auth = new Auth();
 $db = Database::getInstance();
@@ -21,7 +23,7 @@ if (!$auth->isLoggedIn()) {
 
 $currentUser = $auth->getCurrentUser();
 
-// السماح للمدير العام والمدير والمراقب بالدخول
+// السماح للمدير العام والمدير بالدخول
 $allowedRoles = ['super_admin', 'admin'];
 
 if (!in_array($currentUser['role'], $allowedRoles)) {
@@ -52,10 +54,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_action'])) {
             );
             
             if ($result) {
-                // تسجيل في Audit Log
                 $db->execute(
                     "INSERT INTO TI_audit_log (user_id, action, table_name, record_id, ip_address) VALUES (?, 'user_status_changed', 'TI_users', ?, ?)",
-                    [$currentUser['id'], $userId, $_SERVER['REMOTE_ADDR']]
+                    [$currentUser['id'], $userId, $_SERVER['REMOTE_ADDR'] ?? '']
                 );
                 
                 echo json_encode(['success' => true, 'message' => 'تم تحديث حالة المستخدم']);
@@ -67,7 +68,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_action'])) {
         case 'delete_user':
             $userId = (int)$_POST['user_id'];
             
-            // لا يمكن حذف نفسك
             if ($userId === $currentUser['id']) {
                 echo json_encode(['success' => false, 'message' => 'لا يمكنك حذف حسابك الخاص']);
                 exit;
@@ -76,6 +76,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_action'])) {
             $result = $db->execute("DELETE FROM TI_users WHERE id = ?", [$userId]);
             
             if ($result) {
+                $db->execute(
+                    "INSERT INTO TI_audit_log (user_id, action, table_name, record_id, ip_address) VALUES (?, 'user_deleted', 'TI_users', ?, ?)",
+                    [$currentUser['id'], $userId, $_SERVER['REMOTE_ADDR'] ?? '']
+                );
+                
                 echo json_encode(['success' => true, 'message' => 'تم حذف المستخدم']);
             } else {
                 echo json_encode(['success' => false, 'message' => 'فشل الحذف']);
@@ -84,9 +89,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_action'])) {
             
         case 'change_user_role':
             $userId = (int)$_POST['user_id'];
-            $newRole = $_POST['role'];
+            $newRole = isset($_POST['role']) ? trim($_POST['role']) : '';
             
-            if (!in_array($newRole, ['user', 'moderator', 'admin'])) {
+            if (!in_array($newRole, ['user', 'moderator', 'supervisor', 'monitor', 'admin'])) {
                 echo json_encode(['success' => false, 'message' => 'دور غير صالح']);
                 exit;
             }
@@ -97,6 +102,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_action'])) {
             );
             
             if ($result) {
+                $roleInfo = getRoleInfo($newRole);
+                $db->execute(
+                    "INSERT INTO TI_audit_log (user_id, action, table_name, record_id, old_values, new_values, ip_address) VALUES (?, 'role_changed', 'TI_users', ?, ?, ?, ?)",
+                    [$currentUser['id'], $userId, 'old_role', $newRole, $_SERVER['REMOTE_ADDR'] ?? '']
+                );
+                
                 echo json_encode(['success' => true, 'message' => 'تم تحديث دور المستخدم']);
             } else {
                 echo json_encode(['success' => false, 'message' => 'فشل التحديث']);
@@ -105,6 +116,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_action'])) {
             
         case 'clear_login_attempts':
             $db->execute("DELETE FROM TI_login_attempts WHERE attempted_at < DATE_SUB(NOW(), INTERVAL 7 DAY)");
+            $db->execute(
+                "INSERT INTO TI_audit_log (user_id, action, table_name, ip_address) VALUES (?, 'login_attempts_cleared', 'TI_login_attempts', ?)",
+                [$currentUser['id'], $_SERVER['REMOTE_ADDR'] ?? '']
+            );
             echo json_encode(['success' => true, 'message' => 'تم مسح السجلات القديمة']);
             exit;
             
@@ -123,39 +138,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_action'])) {
 // الحصول على الإحصائيات
 $stats = [];
 
-// عدد المستخدمين
 $usersCount = $db->select("SELECT COUNT(*) as count FROM TI_users");
-$stats['total_users'] = $usersCount[0]['count'];
+$stats['total_users'] = $usersCount[0]['count'] ?? 0;
 
 $activeUsers = $db->select("SELECT COUNT(*) as count FROM TI_users WHERE is_active = 1");
-$stats['active_users'] = $activeUsers[0]['count'];
+$stats['active_users'] = $activeUsers[0]['count'] ?? 0;
 
-// عدد المستخدمين حسب الدور
 $admins = $db->select("SELECT COUNT(*) as count FROM TI_users WHERE role = 'admin'");
-$stats['admins'] = $admins[0]['count'];
+$stats['admins'] = $admins[0]['count'] ?? 0;
+
+$monitors = $db->select("SELECT COUNT(*) as count FROM TI_users WHERE role = 'monitor'");
+$stats['monitors'] = $monitors[0]['count'] ?? 0;
 
 $moderators = $db->select("SELECT COUNT(*) as count FROM TI_users WHERE role = 'moderator'");
-$stats['moderators'] = $moderators[0]['count'];
+$stats['moderators'] = $moderators[0]['count'] ?? 0;
 
-// الجلسات النشطة
 $sessions = $db->select("SELECT COUNT(*) as count FROM TI_sessions WHERE is_active = 1");
-$stats['active_sessions'] = $sessions[0]['count'];
+$stats['active_sessions'] = $sessions[0]['count'] ?? 0;
 
-// محاولات تسجيل الدخول الفاشلة (آخر 24 ساعة)
 $failedLogins = $db->select(
     "SELECT COUNT(*) as count FROM TI_login_attempts WHERE success = 0 AND attempted_at > DATE_SUB(NOW(), INTERVAL 24 HOUR)"
 );
-$stats['failed_logins_24h'] = $failedLogins[0]['count'];
+$stats['failed_logins_24h'] = $failedLogins[0]['count'] ?? 0;
 
-// المستخدمين الجدد (آخر 7 أيام)
 $newUsers = $db->select(
     "SELECT COUNT(*) as count FROM TI_users WHERE created_at > DATE_SUB(NOW(), INTERVAL 7 DAY)"
 );
-$stats['new_users_7d'] = $newUsers[0]['count'];
+$stats['new_users_7d'] = $newUsers[0]['count'] ?? 0;
 
-// الإشعارات غير المقروءة
 $unreadNotifications = $db->select("SELECT COUNT(*) as count FROM TI_notifications WHERE is_read = 0");
-$stats['unread_notifications'] = $unreadNotifications[0]['count'];
+$stats['unread_notifications'] = $unreadNotifications[0]['count'] ?? 0;
 
 // الحصول على قائمة المستخدمين
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
@@ -168,11 +180,19 @@ $users = $db->select(
     [$perPage, $offset]
 );
 
+if (!is_array($users)) {
+    $users = [];
+}
+
 // الحصول على آخر محاولات تسجيل الدخول
 $recentAttempts = $db->select(
     "SELECT username_or_email, ip_address, success, failure_reason, attempted_at 
      FROM TI_login_attempts ORDER BY attempted_at DESC LIMIT 10"
 );
+
+if (!is_array($recentAttempts)) {
+    $recentAttempts = [];
+}
 
 // الحصول على آخر أنشطة التدقيق
 $recentAudits = $db->select(
@@ -182,8 +202,31 @@ $recentAudits = $db->select(
      ORDER BY al.created_at DESC LIMIT 15"
 );
 
+if (!is_array($recentAudits)) {
+    $recentAudits = [];
+}
+
+// الحصول على الجلسات النشطة
+$activeSessions = $db->select(
+    "SELECT s.*, u.username, u.fullname, u.role
+     FROM TI_sessions s 
+     JOIN TI_users u ON s.user_id = u.id 
+     WHERE s.is_active = 1 
+     ORDER BY s.last_activity DESC"
+);
+
+if (!is_array($activeSessions)) {
+    $activeSessions = [];
+}
+
+// الحصول على الإعدادات
+$settings = $db->select("SELECT * FROM TI_settings WHERE category = 'security' ORDER BY setting_key");
+
+if (!is_array($settings)) {
+    $settings = [];
+}
+
 $csrf_token = $auth->generateCsrfToken();
-require_once 'site-functions.php';
 ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -230,7 +273,6 @@ require_once 'site-functions.php';
             font-size: 16px;
         }
         
-        /* إحصائيات */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -298,7 +340,6 @@ require_once 'site-functions.php';
             font-weight: 600;
         }
         
-        /* التبويبات */
         .tabs-container {
             background: white;
             border-radius: 15px;
@@ -362,15 +403,16 @@ require_once 'site-functions.php';
             to { opacity: 1; transform: translateY(0); }
         }
         
-        /* جدول المستخدمين */
         .search-box {
             margin-bottom: 20px;
             display: flex;
             gap: 15px;
+            flex-wrap: wrap;
         }
         
         .search-input {
             flex: 1;
+            min-width: 200px;
             padding: 12px 20px;
             border: 2px solid var(--border-color);
             border-radius: 10px;
@@ -386,6 +428,7 @@ require_once 'site-functions.php';
             width: 100%;
             border-collapse: collapse;
             background: white;
+            margin-bottom: 20px;
         }
         
         .data-table thead {
@@ -411,28 +454,12 @@ require_once 'site-functions.php';
             background: var(--light-bg);
         }
         
-        /* شارات */
         .badge {
             display: inline-block;
-            padding: 5px 12px;
+            padding: 6px 14px;
             border-radius: 20px;
             font-size: 12px;
             font-weight: 600;
-        }
-        
-        .badge-admin {
-            background: #fce4ec;
-            color: #c2185b;
-        }
-        
-        .badge-moderator {
-            background: #fff3e0;
-            color: #e65100;
-        }
-        
-        .badge-user {
-            background: #e3f2fd;
-            color: #1976d2;
         }
         
         .badge-active {
@@ -455,10 +482,10 @@ require_once 'site-functions.php';
             color: #721c24;
         }
         
-        /* أزرار الإجراءات */
         .action-buttons {
             display: flex;
             gap: 8px;
+            flex-wrap: wrap;
         }
         
         .btn {
@@ -516,7 +543,6 @@ require_once 'site-functions.php';
             border: 1px solid var(--border-color);
         }
         
-        /* رسائل التنبيه */
         .alert {
             padding: 15px 20px;
             border-radius: 10px;
@@ -546,7 +572,6 @@ require_once 'site-functions.php';
             color: #721c24;
         }
         
-        /* Loading Spinner */
         .loading {
             display: none;
             text-align: center;
@@ -568,7 +593,12 @@ require_once 'site-functions.php';
             100% { transform: rotate(360deg); }
         }
         
-        /* Responsive */
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+        
         @media (max-width: 768px) {
             .admin-header h1 {
                 font-size: 24px;
@@ -590,6 +620,14 @@ require_once 'site-functions.php';
             .data-table td {
                 padding: 10px 8px;
             }
+            
+            .search-box {
+                flex-direction: column;
+            }
+            
+            .search-input {
+                min-width: 100%;
+            }
         }
     </style>
 </head>
@@ -600,16 +638,13 @@ require_once 'site-functions.php';
     <main class="main-content">
         <div class="admin-container">
             
-            <!-- رأس لوحة الإدارة -->
             <div class="admin-header">
                 <h1>👑 لوحة الإدارة المتقدمة</h1>
                 <p>إدارة كاملة للنظام والمستخدمين • مرحباً <?php echo htmlspecialchars($currentUser['fullname']); ?></p>
             </div>
 
-            <!-- رسائل التنبيه -->
             <div id="alertContainer"></div>
 
-            <!-- الإحصائيات -->
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-card-header">
@@ -652,31 +687,18 @@ require_once 'site-functions.php';
                 </div>
             </div>
 
-            <!-- التبويبات -->
             <div class="tabs-container">
                 <div class="tabs-header">
-                    <button class="tab-button active" onclick="switchTab('users')">
-                        👥 إدارة المستخدمين
-                    </button>
-                    <button class="tab-button" onclick="switchTab('security')">
-                        🔒 الأمان والتدقيق
-                    </button>
-                    <button class="tab-button" onclick="switchTab('sessions')">
-                        🔑 الجلسات النشطة
-                    </button>
-                    <button class="tab-button" onclick="switchTab('statistics')">
-                        📊 الإحصائيات المتقدمة
-                    </button>
-                    <button class="tab-button" onclick="switchTab('settings')">
-                        ⚙️ إعدادات النظام
-                    </button>
+                    <button class="tab-button active" onclick="switchTab('users')">👥 إدارة المستخدمين</button>
+                    <button class="tab-button" onclick="switchTab('security')">🔒 الأمان والتدقيق</button>
+                    <button class="tab-button" onclick="switchTab('sessions')">🔑 الجلسات النشطة</button>
+                    <button class="tab-button" onclick="switchTab('statistics')">📊 الإحصائيات</button>
                 </div>
 
                 <!-- تبويب إدارة المستخدمين -->
                 <div id="users-tab" class="tab-content active">
                     <div class="search-box">
-                        <input type="text" id="userSearch" class="search-input" 
-                               placeholder="🔍 ابحث عن مستخدم (الاسم، اسم المستخدم، البريد)...">
+                        <input type="text" id="userSearch" class="search-input" placeholder="🔍 ابحث عن مستخدم...">
                         <button class="btn btn-primary" onclick="searchUsers()">بحث</button>
                         <button class="btn btn-secondary" onclick="resetSearch()">إعادة تعيين</button>
                     </div>
@@ -697,60 +719,58 @@ require_once 'site-functions.php';
                                     <th>الدور</th>
                                     <th>الحالة</th>
                                     <th>تاريخ التسجيل</th>
-                                    <th>آخر دخول</th>
                                     <th>الإجراءات</th>
                                 </tr>
                             </thead>
                             <tbody id="usersTableBody">
-                                <?php foreach ($users as $user): ?>
-                                <tr id="user-row-<?php echo $user['id']; ?>">
-                                    <td><?php echo $user['id']; ?></td>
-                                    <td><?php echo htmlspecialchars($user['fullname']); ?></td>
-                                    <td>@<?php echo htmlspecialchars($user['username']); ?></td>
-                                    <td style="direction: ltr; text-align: right;"><?php 
-                                        // إذا كان المدير العام، استخدم بريد الموقع من قاعدة البيانات
-                                        $displayEmail = ($user['role'] === 'super_admin') ? getSiteEmail() : $user['email'];
-                                        echo htmlspecialchars($displayEmail); 
-                                    ?></td>
-                                    <td>
-                                        <span class="badge badge-<?php echo $user['role']; ?>">
+                                <?php if (!empty($users)): ?>
+                                    <?php foreach ($users as $user): ?>
+                                    <tr id="user-row-<?php echo $user['id']; ?>">
+                                        <td><?php echo $user['id']; ?></td>
+                                        <td><?php echo htmlspecialchars($user['fullname']); ?></td>
+                                        <td>@<?php echo htmlspecialchars($user['username']); ?></td>
+                                        <td style="direction: ltr; text-align: right;">
                                             <?php 
-                                            $roles = ['admin' => '👑 مدير', 'moderator' => '🛡️ مشرف', 'user' => '👤 مستخدم'];
-                                            echo $roles[$user['role']];
+                                            $displayEmail = ($user['role'] === 'super_admin') ? getSiteEmail() : $user['email'];
+                                            echo htmlspecialchars($displayEmail); 
                                             ?>
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span class="badge badge-<?php echo $user['is_active'] ? 'active' : 'inactive'; ?>">
-                                            <?php echo $user['is_active'] ? '✅ نشط' : '❌ معطل'; ?>
-                                        </span>
-                                    </td>
-                                    <td><?php echo date('Y-m-d', strtotime($user['created_at'])); ?></td>
-                                    <td>
-                                        <?php 
-                                        echo $user['last_login'] 
-                                            ? date('Y-m-d H:i', strtotime($user['last_login']))
-                                            : 'لم يدخل بعد';
-                                        ?>
-                                    </td>
-                                    <td>
-                                        <div class="action-buttons">
-                                            <?php if ($user['id'] !== $currentUser['id']): ?>
-                                                <button class="btn btn-sm btn-warning" 
-                                                        onclick="toggleUserStatus(<?php echo $user['id']; ?>, <?php echo $user['is_active'] ? 0 : 1; ?>)">
-                                                    <?php echo $user['is_active'] ? 'تعطيل' : 'تفعيل'; ?>
-                                                </button>
-                                                <button class="btn btn-sm btn-danger" 
-                                                        onclick="deleteUser(<?php echo $user['id']; ?>, '<?php echo htmlspecialchars($user['username']); ?>')">
-                                                    حذف
-                                                </button>
-                                            <?php else: ?>
-                                                <span class="badge badge-admin">أنت</span>
-                                            <?php endif; ?>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <?php endforeach; ?>
+                                        </td>
+                                        <td>
+                                            <?php 
+                                            $roleInfo = getRoleInfo($user['role']);
+                                            $badgeStyle = "background-color: {$roleInfo['bg_color']}; color: {$roleInfo['color']};";
+                                            ?>
+                                            <span class="badge" style="<?php echo $badgeStyle; ?>">
+                                                <?php echo htmlspecialchars($roleInfo['name']); ?>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-<?php echo $user['is_active'] ? 'active' : 'inactive'; ?>">
+                                                <?php echo $user['is_active'] ? '✅ نشط' : '❌ معطل'; ?>
+                                            </span>
+                                        </td>
+                                        <td><?php echo date('Y-m-d', strtotime($user['created_at'])); ?></td>
+                                        <td>
+                                            <div class="action-buttons">
+                                                <?php if ($user['id'] !== $currentUser['id'] && $user['id'] !== 1): ?>
+                                                    <button class="btn btn-sm btn-warning" onclick="toggleUserStatus(<?php echo $user['id']; ?>, <?php echo $user['is_active'] ? 0 : 1; ?>)">
+                                                        <?php echo $user['is_active'] ? 'تعطيل' : 'تفعيل'; ?>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-danger" onclick="deleteUser(<?php echo $user['id']; ?>, '<?php echo htmlspecialchars($user['username']); ?>')">
+                                                        حذف
+                                                    </button>
+                                                <?php else: ?>
+                                                    <span class="badge" style="background-color: <?php echo getRoleBgColor($user['role']); ?>; color: <?php echo getRoleColor($user['role']); ?>;">محمي</span>
+                                                <?php endif; ?>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="8" class="no-data">لا توجد بيانات</td>
+                                    </tr>
+                                <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
@@ -771,19 +791,25 @@ require_once 'site-functions.php';
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($recentAttempts as $attempt): ?>
-                            <tr>
-                                <td><?php echo htmlspecialchars($attempt['username_or_email']); ?></td>
-                                <td style="direction: ltr; text-align: right;"><?php echo htmlspecialchars($attempt['ip_address']); ?></td>
-                                <td>
-                                    <span class="badge badge-<?php echo $attempt['success'] ? 'success' : 'failed'; ?>">
-                                        <?php echo $attempt['success'] ? '✅ نجح' : '❌ فشل'; ?>
-                                    </span>
-                                </td>
-                                <td><?php echo htmlspecialchars($attempt['failure_reason'] ?? '-'); ?></td>
-                                <td><?php echo date('Y-m-d H:i:s', strtotime($attempt['attempted_at'])); ?></td>
-                            </tr>
-                            <?php endforeach; ?>
+                            <?php if (!empty($recentAttempts)): ?>
+                                <?php foreach ($recentAttempts as $attempt): ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($attempt['username_or_email']); ?></td>
+                                    <td style="direction: ltr; text-align: right;"><?php echo htmlspecialchars($attempt['ip_address']); ?></td>
+                                    <td>
+                                        <span class="badge badge-<?php echo $attempt['success'] ? 'success' : 'failed'; ?>">
+                                            <?php echo $attempt['success'] ? '✅ نجح' : '❌ فشل'; ?>
+                                        </span>
+                                    </td>
+                                    <td><?php echo htmlspecialchars($attempt['failure_reason'] ?? '-'); ?></td>
+                                    <td><?php echo date('Y-m-d H:i:s', strtotime($attempt['attempted_at'])); ?></td>
+                                </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="5" class="no-data">لا توجد محاولات تسجيل دخول</td>
+                                </tr>
+                            <?php endif; ?>
                         </tbody>
                     </table>
 
@@ -806,15 +832,21 @@ require_once 'site-functions.php';
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($recentAudits as $audit): ?>
-                            <tr>
-                                <td><?php echo htmlspecialchars($audit['username'] ?? 'نظام'); ?></td>
-                                <td><?php echo htmlspecialchars($audit['action']); ?></td>
-                                <td><?php echo htmlspecialchars($audit['table_name'] ?? '-'); ?></td>
-                                <td style="direction: ltr; text-align: right;"><?php echo htmlspecialchars($audit['ip_address'] ?? '-'); ?></td>
-                                <td><?php echo date('Y-m-d H:i:s', strtotime($audit['created_at'])); ?></td>
-                            </tr>
-                            <?php endforeach; ?>
+                            <?php if (!empty($recentAudits)): ?>
+                                <?php foreach ($recentAudits as $audit): ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($audit['username'] ?? 'نظام'); ?></td>
+                                    <td><?php echo htmlspecialchars($audit['action']); ?></td>
+                                    <td><?php echo htmlspecialchars($audit['table_name'] ?? '-'); ?></td>
+                                    <td style="direction: ltr; text-align: right;"><?php echo htmlspecialchars($audit['ip_address'] ?? '-'); ?></td>
+                                    <td><?php echo date('Y-m-d H:i:s', strtotime($audit['created_at'])); ?></td>
+                                </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="5" class="no-data">لا توجد سجلات تدقيق</td>
+                                </tr>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
@@ -823,51 +855,55 @@ require_once 'site-functions.php';
                 <div id="sessions-tab" class="tab-content">
                     <h3 style="margin-bottom: 20px;">🔑 الجلسات النشطة حالياً</h3>
                     
-                    <?php
-                    $activeSessions = $db->select(
-                        "SELECT s.*, u.username, u.fullname 
-                         FROM TI_sessions s 
-                         JOIN TI_users u ON s.user_id = u.id 
-                         WHERE s.is_active = 1 
-                         ORDER BY s.last_activity DESC"
-                    );
-                    ?>
-                    
                     <table class="data-table">
                         <thead>
                             <tr>
                                 <th>المستخدم</th>
+                                <th>الرتبة</th>
                                 <th>IP Address</th>
-                                <th>User Agent</th>
                                 <th>آخر نشاط</th>
                                 <th>تاريخ البدء</th>
                                 <th>الإجراءات</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($activeSessions as $session): ?>
-                            <tr>
-                                <td>
-                                    <?php echo htmlspecialchars($session['fullname']); ?>
-                                    <br>
-                                    <small style="color: #666;">@<?php echo htmlspecialchars($session['username']); ?></small>
-                                </td>
-                                <td style="direction: ltr; text-align: right;"><?php echo htmlspecialchars($session['ip_address']); ?></td>
-                                <td style="font-size: 11px;"><?php echo htmlspecialchars(substr($session['user_agent'], 0, 50)) . '...'; ?></td>
-                                <td><?php echo date('Y-m-d H:i', strtotime($session['last_activity'])); ?></td>
-                                <td><?php echo date('Y-m-d H:i', strtotime($session['created_at'])); ?></td>
-                                <td>
-                                    <button class="btn btn-sm btn-danger" onclick="terminateSession(<?php echo $session['id']; ?>)">
-                                        إنهاء الجلسة
-                                    </button>
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
+                            <?php if (!empty($activeSessions)): ?>
+                                <?php foreach ($activeSessions as $session): ?>
+                                <tr>
+                                    <td>
+                                        <strong><?php echo htmlspecialchars($session['fullname']); ?></strong>
+                                        <br>
+                                        <small style="color: #666;">@<?php echo htmlspecialchars($session['username']); ?></small>
+                                    </td>
+                                    <td>
+                                        <?php 
+                                        $roleInfo = getRoleInfo($session['role']);
+                                        $badgeStyle = "background-color: {$roleInfo['bg_color']}; color: {$roleInfo['color']};";
+                                        ?>
+                                        <span class="badge" style="<?php echo $badgeStyle; ?>">
+                                            <?php echo htmlspecialchars($roleInfo['name']); ?>
+                                        </span>
+                                    </td>
+                                    <td style="direction: ltr; text-align: right;"><?php echo htmlspecialchars($session['ip_address']); ?></td>
+                                    <td><?php echo date('Y-m-d H:i', strtotime($session['last_activity'])); ?></td>
+                                    <td><?php echo date('Y-m-d H:i', strtotime($session['created_at'])); ?></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-danger" onclick="terminateSession(<?php echo $session['id']; ?>)">
+                                            إنهاء
+                                        </button>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="6" class="no-data">لا توجد جلسات نشطة</td>
+                                </tr>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
 
-                <!-- تبويب الإحصائيات المتقدمة -->
+                <!-- تبويب الإحصائيات -->
                 <div id="statistics-tab" class="tab-content">
                     <h3 style="margin-bottom: 20px;">📊 إحصائيات مفصلة</h3>
                     
@@ -885,10 +921,20 @@ require_once 'site-functions.php';
                         <div class="stat-card">
                             <div class="stat-card-header">
                                 <div>
+                                    <div class="stat-value"><?php echo $stats['monitors']; ?></div>
+                                    <div class="stat-label">المراقبون</div>
+                                </div>
+                                <div class="stat-icon warning">🔍</div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-card-header">
+                                <div>
                                     <div class="stat-value"><?php echo $stats['moderators']; ?></div>
                                     <div class="stat-label">المشرفون</div>
                                 </div>
-                                <div class="stat-icon warning">🛡️</div>
+                                <div class="stat-icon info">🛡️</div>
                             </div>
                         </div>
 
@@ -901,141 +947,45 @@ require_once 'site-functions.php';
                                 <div class="stat-icon success">📈</div>
                             </div>
                         </div>
-
-                        <div class="stat-card">
-                            <div class="stat-card-header">
-                                <div>
-                                    <div class="stat-value"><?php echo $stats['unread_notifications']; ?></div>
-                                    <div class="stat-label">الإشعارات غير المقروءة</div>
-                                </div>
-                                <div class="stat-icon primary">🔔</div>
-                            </div>
-                        </div>
                     </div>
 
-                    <h3 style="margin: 40px 0 20px;">📈 الرسم البياني للمستخدمين</h3>
+                    <h3 style="margin: 40px 0 20px;">📈 تحليل النشاط</h3>
                     
-                    <?php
-                    // إحصائيات المستخدمين حسب الشهر
-                    $monthlyUsers = $db->select(
-                        "SELECT DATE_FORMAT(created_at, '%Y-%m') as month, COUNT(*) as count 
-                         FROM TI_users 
-                         WHERE created_at > DATE_SUB(NOW(), INTERVAL 6 MONTH)
-                         GROUP BY month 
-                         ORDER BY month"
-                    );
-                    ?>
-                    
-                    <div style="background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
-                        <canvas id="usersChart" style="max-height: 300px;"></canvas>
-                    </div>
-
-                    <h3 style="margin: 40px 0 20px;">🔍 تحليل النشاط</h3>
-                    
-                    <div class="data-table">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>المؤشر</th>
-                                    <th>القيمة</th>
-                                    <th>الوصف</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php
-                                $totalLogins = $db->select("SELECT SUM(login_count) as total FROM TI_users");
-                                $avgLoginCount = $db->select("SELECT AVG(login_count) as avg FROM TI_users WHERE login_count > 0");
-                                ?>
-                                <tr>
-                                    <td>إجمالي عمليات تسجيل الدخول</td>
-                                    <td><strong><?php echo number_format($totalLogins[0]['total']); ?></strong></td>
-                                    <td>منذ بداية النظام</td>
-                                </tr>
-                                <tr>
-                                    <td>متوسط عمليات الدخول للمستخدم</td>
-                                    <td><strong><?php echo number_format($avgLoginCount[0]['avg'], 1); ?></strong></td>
-                                    <td>معدل نشاط المستخدمين</td>
-                                </tr>
-                                <tr>
-                                    <td>معدل النجاح في تسجيل الدخول</td>
-                                    <td><strong>
-                                        <?php
-                                        $totalAttempts = $db->select("SELECT COUNT(*) as count FROM TI_login_attempts");
-                                        $successAttempts = $db->select("SELECT COUNT(*) as count FROM TI_login_attempts WHERE success = 1");
-                                        $successRate = $totalAttempts[0]['count'] > 0 
-                                            ? ($successAttempts[0]['count'] / $totalAttempts[0]['count']) * 100 
-                                            : 0;
-                                        echo number_format($successRate, 1) . '%';
-                                        ?>
-                                    </strong></td>
-                                    <td>نسبة المحاولات الناجحة</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- تبويب إعدادات النظام -->
-                <div id="settings-tab" class="tab-content">
-                    <h3 style="margin-bottom: 20px;">⚙️ إعدادات الأمان</h3>
-                    
-                    <?php
-                    $settings = $db->select("SELECT * FROM TI_settings WHERE category = 'security' ORDER BY setting_key");
-                    ?>
-                    
-                    <form id="settingsForm">
-                        <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
-                        
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>الإعداد</th>
-                                    <th>القيمة الحالية</th>
-                                    <th>الوصف</th>
-                                    <th>الإجراء</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($settings as $setting): ?>
-                                <tr>
-                                    <td><strong><?php echo htmlspecialchars($setting['setting_key']); ?></strong></td>
-                                    <td>
-                                        <input type="text" 
-                                               name="setting_<?php echo $setting['id']; ?>" 
-                                               value="<?php echo htmlspecialchars($setting['setting_value']); ?>"
-                                               class="search-input"
-                                               style="max-width: 200px;">
-                                    </td>
-                                    <td><?php echo htmlspecialchars($setting['description'] ?? '-'); ?></td>
-                                    <td>
-                                        <button type="button" class="btn btn-sm btn-primary" 
-                                                onclick="updateSetting(<?php echo $setting['id']; ?>)">
-                                            تحديث
-                                        </button>
-                                    </td>
-                                </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </form>
-
-                    <h3 style="margin: 40px 0 20px;">🗄️ صيانة قاعدة البيانات</h3>
-                    
-                    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-                        <button class="btn btn-warning" onclick="optimizeDatabase()">
-                            🔧 تحسين قاعدة البيانات
-                        </button>
-                        <button class="btn btn-danger" onclick="clearOldData()">
-                            🗑️ حذف البيانات القديمة
-                        </button>
-                        <button class="btn btn-success" onclick="exportData()">
-                            💾 تصدير البيانات
-                        </button>
-                    </div>
-
-                    <div style="background: #fff3cd; padding: 20px; border-radius: 10px; margin-top: 20px; border: 1px solid #ffc107;">
-                        <strong>⚠️ تحذير:</strong> عمليات الصيانة قد تؤثر على أداء النظام. تأكد من عمل نسخة احتياطية قبل تنفيذ أي عملية.
-                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>المؤشر</th>
+                                <th>القيمة</th>
+                                <th>الوصف</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            $totalLogins = $db->select("SELECT SUM(login_count) as total FROM TI_users");
+                            $avgLoginCount = $db->select("SELECT AVG(login_count) as avg FROM TI_users WHERE login_count > 0");
+                            $totalAttempts = $db->select("SELECT COUNT(*) as count FROM TI_login_attempts");
+                            $successAttempts = $db->select("SELECT COUNT(*) as count FROM TI_login_attempts WHERE success = 1");
+                            $successRate = ($totalAttempts[0]['count'] ?? 0) > 0 
+                                ? (($successAttempts[0]['count'] ?? 0) / ($totalAttempts[0]['count'] ?? 1)) * 100 
+                                : 0;
+                            ?>
+                            <tr>
+                                <td>إجمالي عمليات تسجيل الدخول</td>
+                                <td><strong><?php echo number_format($totalLogins[0]['total'] ?? 0); ?></strong></td>
+                                <td>منذ بداية النظام</td>
+                            </tr>
+                            <tr>
+                                <td>متوسط عمليات الدخول للمستخدم</td>
+                                <td><strong><?php echo number_format($avgLoginCount[0]['avg'] ?? 0, 1); ?></strong></td>
+                                <td>معدل نشاط المستخدمين</td>
+                            </tr>
+                            <tr>
+                                <td>معدل النجاح في تسجيل الدخول</td>
+                                <td><strong><?php echo number_format($successRate, 1); ?>%</strong></td>
+                                <td>نسبة المحاولات الناجحة</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
@@ -1046,9 +996,7 @@ require_once 'site-functions.php';
     <script>
         const csrfToken = '<?php echo $csrf_token; ?>';
 
-        // تبديل التبويبات
         function switchTab(tabName) {
-            // إخفاء جميع التبويبات
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
             });
@@ -1056,12 +1004,10 @@ require_once 'site-functions.php';
                 btn.classList.remove('active');
             });
 
-            // إظهار التبويب المحدد
             document.getElementById(tabName + '-tab').classList.add('active');
             event.target.classList.add('active');
         }
 
-        // عرض رسالة تنبيه
         function showAlert(message, type = 'success') {
             const alertDiv = document.createElement('div');
             alertDiv.className = `alert alert-${type} show`;
@@ -1077,7 +1023,6 @@ require_once 'site-functions.php';
             }, 5000);
         }
 
-        // تبديل حالة المستخدم (تفعيل/تعطيل)
         function toggleUserStatus(userId, newStatus) {
             if (!confirm('هل أنت متأكد من تغيير حالة هذا المستخدم؟')) return;
 
@@ -1097,14 +1042,11 @@ require_once 'site-functions.php';
             })
             .catch(error => {
                 showAlert('حدث خطأ في الاتصال', 'error');
-                console.error('Error:', error);
             });
         }
 
-        // حذف مستخدم
         function deleteUser(userId, username) {
-            if (!confirm(`هل أنت متأكد من حذف المستخدم "${username}"؟\n\nهذا الإجراء لا يمكن التراجع عنه!`)) return;
-
+            if (!confirm(`هل أنت متأكد من حذف المستخدم "${username}"؟`)) return;
             if (!confirm('تأكيد نهائي: سيتم حذف جميع بيانات المستخدم!')) return;
 
             fetch('administration.php', {
@@ -1123,11 +1065,9 @@ require_once 'site-functions.php';
             })
             .catch(error => {
                 showAlert('حدث خطأ في الاتصال', 'error');
-                console.error('Error:', error);
             });
         }
 
-        // البحث عن المستخدمين
         function searchUsers() {
             const searchTerm = document.getElementById('userSearch').value.trim();
             
@@ -1149,9 +1089,9 @@ require_once 'site-functions.php';
                 document.getElementById('usersLoading').style.display = 'none';
                 document.getElementById('usersTableContainer').style.display = 'block';
 
-                if (data.success && data.users) {
-                    updateUsersTable(data.users);
+                if (data.success && data.users && data.users.length > 0) {
                     showAlert(`تم العثور على ${data.users.length} نتيجة`, 'success');
+                    location.reload();
                 } else {
                     showAlert('لم يتم العثور على نتائج', 'error');
                 }
@@ -1159,54 +1099,14 @@ require_once 'site-functions.php';
             .catch(error => {
                 document.getElementById('usersLoading').style.display = 'none';
                 showAlert('حدث خطأ في البحث', 'error');
-                console.error('Error:', error);
             });
         }
 
-        // تحديث جدول المستخدمين
-        function updateUsersTable(users) {
-            const tbody = document.getElementById('usersTableBody');
-            tbody.innerHTML = '';
-
-            users.forEach(user => {
-                const roleIcons = {admin: '👑 مدير', moderator: '🛡️ مشرف', user: '👤 مستخدم'};
-                const statusBadge = user.is_active == 1 
-                    ? '<span class="badge badge-active">✅ نشط</span>' 
-                    : '<span class="badge badge-inactive">❌ معطل</span>';
-
-                const row = `
-                    <tr id="user-row-${user.id}">
-                        <td>${user.id}</td>
-                        <td>${user.fullname}</td>
-                        <td>@${user.username}</td>
-                        <td style="direction: ltr; text-align: right;">${user.email}</td>
-                        <td><span class="badge badge-${user.role}">${roleIcons[user.role]}</span></td>
-                        <td>${statusBadge}</td>
-                        <td>${user.created_at.split(' ')[0]}</td>
-                        <td>-</td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="btn btn-sm btn-warning" onclick="toggleUserStatus(${user.id}, ${user.is_active == 1 ? 0 : 1})">
-                                    ${user.is_active == 1 ? 'تعطيل' : 'تفعيل'}
-                                </button>
-                                <button class="btn btn-sm btn-danger" onclick="deleteUser(${user.id}, '${user.username}')">
-                                    حذف
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-                tbody.innerHTML += row;
-            });
-        }
-
-        // إعادة تعيين البحث
         function resetSearch() {
             document.getElementById('userSearch').value = '';
             location.reload();
         }
 
-        // مسح محاولات تسجيل الدخول القديمة
         function clearLoginAttempts() {
             if (!confirm('هل تريد مسح محاولات تسجيل الدخول الأقدم من 7 أيام؟')) return;
 
@@ -1226,52 +1126,19 @@ require_once 'site-functions.php';
             });
         }
 
-        // إنهاء جلسة
         function terminateSession(sessionId) {
             if (!confirm('هل تريد إنهاء هذه الجلسة؟')) return;
-
-            // يمكن إضافة AJAX هنا
             showAlert('الميزة قيد التطوير', 'error');
         }
 
-        // تحديث إعداد
-        function updateSetting(settingId) {
-            const inputValue = document.querySelector(`input[name="setting_${settingId}"]`).value;
-            
-            // يمكن إضافة AJAX هنا
-            showAlert('تم تحديث الإعداد بنجاح', 'success');
-        }
-
-        // تحسين قاعدة البيانات
-        function optimizeDatabase() {
-            if (!confirm('هل تريد تحسين قاعدة البيانات؟ قد يستغرق هذا بعض الوقت.')) return;
-            showAlert('جاري تحسين قاعدة البيانات...', 'success');
-            // يمكن إضافة AJAX هنا
-        }
-
-        // حذف البيانات القديمة
-        function clearOldData() {
-            if (!confirm('هل تريد حذف البيانات القديمة؟ لا يمكن التراجع عن هذا الإجراء!')) return;
-            showAlert('جاري حذف البيانات القديمة...', 'success');
-            // يمكن إضافة AJAX هنا
-        }
-
-        // تصدير البيانات
-        function exportData() {
-            showAlert('جاري تصدير البيانات...', 'success');
-            // يمكن إضافة منطق التصدير هنا
-        }
-
-        // Enter key للبحث
         document.getElementById('userSearch')?.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 searchUsers();
             }
         });
 
-        // تحميل الصفحة
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('لوحة الإدارة جاهزة');
+            console.log('✅ لوحة الإدارة جاهزة');
         });
     </script>
 </body>

@@ -274,7 +274,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['admin_action'])) {
                     [$currentUser['id'], $targetUserId, $targetCurrentRole, $newRole, $_SERVER['REMOTE_ADDR']]
                 );
                 
-                require_once 'roles-config.php';
                 $roleInfo = getRoleInfo($newRole);
                 echo json_encode(['success' => true, 'message' => "تمت الترقية إلى {$roleInfo['name']} بنجاح"]);
             } else {
@@ -789,31 +788,6 @@ $hasAnyAccess = $hasFullAccess || $hasLimitedAccess;
             flex-shrink: 0;
         }
 
-        .custom-select-option-icon svg {
-            width: 20px;
-            height: 20px;
-            stroke: currentColor;
-            transition: all 0.3s ease;
-        }
-
-        .custom-select-option:hover .custom-select-option-icon svg {
-            stroke-width: 2.5;
-        }
-
-        .custom-select-option.selected .custom-select-option-icon svg {
-            stroke-width: 2.5;
-            filter: drop-shadow(0 0 4px rgba(0, 166, 251, 0.4));
-        }
-
-        .custom-select-trigger .custom-select-icon svg {
-            transition: all 0.3s ease;
-        }
-
-        .custom-select-trigger:hover .custom-select-icon svg,
-        .custom-select-trigger.active .custom-select-icon svg {
-            stroke-width: 2.5;
-        }
-
         .custom-select-option-text {
             flex: 1;
         }
@@ -1039,40 +1013,13 @@ $hasAnyAccess = $hasFullAccess || $hasLimitedAccess;
             font-weight: 600;
         }
         
-        .member-username.admin-color {
-            color: #c2185b;
-        }
-        
-        .member-username.moderator-color {
-            color: #e65100;
-        }
-        
-        .member-username.user-color {
-            color: #1976d2;
-        }
-        
         .member-role {
             display: inline-block;
-            padding: 5px 14px;
+            padding: 6px 14px;
             border-radius: 20px;
             font-size: 12px;
             font-weight: 600;
             margin-bottom: 12px;
-        }
-        
-        .role-admin {
-            background: #fce4ec;
-            color: #c2185b;
-        }
-        
-        .role-moderator {
-            background: #fff3e0;
-            color: #e65100;
-        }
-        
-        .role-user {
-            background: #e3f2fd;
-            color: #1976d2;
         }
         
         .view-profile-btn {
@@ -1236,7 +1183,6 @@ $hasAnyAccess = $hasFullAccess || $hasLimitedAccess;
             }
         }
 
-        /* صندوق ترقية العضوية */
         .promotion-modal {
             display: none;
             position: fixed;
@@ -1278,12 +1224,8 @@ $hasAnyAccess = $hasFullAccess || $hasLimitedAccess;
         }
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         @keyframes slideUp {
@@ -1351,7 +1293,7 @@ $hasAnyAccess = $hasFullAccess || $hasLimitedAccess;
             flex: 1;
         }
 
-        .member-name {
+        .member-details .member-name {
             font-size: 20px;
             font-weight: 700;
             margin-bottom: 8px;
@@ -1379,12 +1321,8 @@ $hasAnyAccess = $hasFullAccess || $hasLimitedAccess;
         }
 
         @keyframes bounce {
-            0%, 100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-10px);
-            }
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
 
         .selection-label {
@@ -1423,71 +1361,6 @@ $hasAnyAccess = $hasFullAccess || $hasLimitedAccess;
             cursor: not-allowed;
             background: #f5f5f5;
             border-color: #ccc;
-        }
-
-        .role-option.role-user {
-            border-color: #1976d2;
-        }
-        
-        .role-option.role-user:not(.disabled):hover {
-            border-color: #1976d2;
-        }
-
-        .role-option.role-user.selected {
-            background: linear-gradient(135deg, rgba(25, 118, 210, 0.1) 0%, rgba(25, 118, 210, 0.05) 100%);
-            border-color: #1976d2;
-        }
-        
-        .role-option.role-moderator {
-            border-color: #2563eb;
-        }
-
-        .role-option.role-moderator:not(.disabled):hover {
-            border-color: #2563eb;
-        }
-
-        .role-option.role-moderator.selected {
-            background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%);
-            border-color: #2563eb;
-        }
-        
-        .role-option.role-supervisor {
-            border-color: #ea580c;
-        }
-
-        .role-option.role-supervisor:not(.disabled):hover {
-            border-color: #ea580c;
-        }
-
-        .role-option.role-supervisor.selected {
-            background: linear-gradient(135deg, rgba(234, 88, 12, 0.1) 0%, rgba(234, 88, 12, 0.05) 100%);
-            border-color: #ea580c;
-        }
-        
-        .role-option.role-monitor {
-            border-color: #92400e;
-        }
-
-        .role-option.role-monitor:not(.disabled):hover {
-            border-color: #92400e;
-        }
-
-        .role-option.role-monitor.selected {
-            background: linear-gradient(135deg, rgba(146, 64, 14, 0.1) 0%, rgba(146, 64, 14, 0.05) 100%);
-            border-color: #92400e;
-        }
-        
-        .role-option.role-admin {
-            border-color: #dc2626;
-        }
-
-        .role-option.role-admin:not(.disabled):hover {
-            border-color: #dc2626;
-        }
-
-        .role-option.role-admin.selected {
-            background: linear-gradient(135deg, rgba(220, 38, 38, 0.1) 0%, rgba(220, 38, 38, 0.05) 100%);
-            border-color: #dc2626;
         }
 
         .promotion-modal-footer {
@@ -1744,6 +1617,16 @@ $hasAnyAccess = $hasFullAccess || $hasLimitedAccess;
         const hasAnyAccess = <?php echo $hasAnyAccess ? 'true' : 'false'; ?>;
         const currentUserRole = '<?php echo $currentUserRole ?? ''; ?>';
         const isFullAdmin = <?php echo $isAdmin ? 'true' : 'false'; ?>;
+
+        // خريطة الرتب والألوان من roles-config.php
+        const rolesMap = {
+            'super_admin': { name: '<?php echo htmlspecialchars(getRoleName('super_admin')); ?>', color: '<?php echo getRoleColor('super_admin'); ?>', bg: '<?php echo getRoleBgColor('super_admin'); ?>' },
+            'admin': { name: '<?php echo htmlspecialchars(getRoleName('admin')); ?>', color: '<?php echo getRoleColor('admin'); ?>', bg: '<?php echo getRoleBgColor('admin'); ?>' },
+            'monitor': { name: '<?php echo htmlspecialchars(getRoleName('monitor')); ?>', color: '<?php echo getRoleColor('monitor'); ?>', bg: '<?php echo getRoleBgColor('monitor'); ?>' },
+            'supervisor': { name: '<?php echo htmlspecialchars(getRoleName('supervisor')); ?>', color: '<?php echo getRoleColor('supervisor'); ?>', bg: '<?php echo getRoleBgColor('supervisor'); ?>' },
+            'moderator': { name: '<?php echo htmlspecialchars(getRoleName('moderator')); ?>', color: '<?php echo getRoleColor('moderator'); ?>', bg: '<?php echo getRoleBgColor('moderator'); ?>' },
+            'user': { name: '<?php echo htmlspecialchars(getRoleName('user')); ?>', color: '<?php echo getRoleColor('user'); ?>', bg: '<?php echo getRoleBgColor('user'); ?>' }
+        };
 
         class CustomSelect {
             constructor(element) {
@@ -2070,12 +1953,9 @@ $hasAnyAccess = $hasFullAccess || $hasLimitedAccess;
 
             membersGrid.innerHTML = '';
             
-            // إذا كان الترتيب حسب الرتبة، نجمع الأعضاء حسب الرتبة
             if (currentSortType === 'role') {
-                // ترتيب الرتب المطلوب
                 const roleOrder = ['super_admin', 'admin', 'monitor', 'supervisor', 'moderator', 'user'];
                 
-                // تجميع الأعضاء حسب الرتبة
                 const membersByRole = {};
                 members.forEach(member => {
                     if (!membersByRole[member.role]) {
@@ -2084,11 +1964,9 @@ $hasAnyAccess = $hasFullAccess || $hasLimitedAccess;
                     membersByRole[member.role].push(member);
                 });
                 
-                // عرض الأعضاء حسب ترتيب الرتب
                 let isFirstRole = true;
                 roleOrder.forEach(role => {
                     if (membersByRole[role] && membersByRole[role].length > 0) {
-                        // بدء سطر جديد لكل رتبة (ما عدا الأولى)
                         if (!isFirstRole) {
                             const roleSeparator = document.createElement('div');
                             roleSeparator.className = 'role-separator';
@@ -2103,7 +1981,6 @@ $hasAnyAccess = $hasFullAccess || $hasLimitedAccess;
                     }
                 });
             } else {
-                // عرض عادي بدون تجميع حسب الرتبة
                 members.forEach(member => {
                     createMemberCard(member);
                 });
@@ -2111,75 +1988,66 @@ $hasAnyAccess = $hasFullAccess || $hasLimitedAccess;
         }
         
         function createMemberCard(member) {
-                const roleLabels = {
-                    super_admin: '👑 المدير العام',
-                    admin: '🔴 مدير',
-                    monitor: '🟤 مراقب',
-                    supervisor: '🟠 مشرف',
-                    moderator: '🔵 مشرف مساعد',
-                    user: '👤 عضو'
-                };
-                
-                const card = document.createElement('div');
-                card.className = 'member-card';
-                
-                // تحديد من يمكنه رؤية زر القائمة
-                let showActions = false;
-                
-                if (member.id === 1) {
-                    // المدير العام: لا يظهر له زر القائمة أبداً
-                    showActions = false;
-                } else if (currentUserRole === 'super_admin') {
-                    // المدير العام: يرى الزر لجميع العضويات ما عدا نفسه
-                    showActions = true;
-                } else if (currentUserRole === 'admin') {
-                    // المدير: يرى الزر فقط للرتب الأقل منه (monitor, supervisor, moderator, user)
-                    showActions = ['monitor', 'supervisor', 'moderator', 'user'].includes(member.role);
-                } else if (currentUserRole === 'monitor') {
-                    // المراقب: يرى الزر فقط لـ (supervisor, moderator, user)
-                    showActions = ['supervisor', 'moderator', 'user'].includes(member.role);
-                } else {
-                    showActions = false;
-                }
-                
-                card.innerHTML = `
-                    ${showActions ? `
-                    <div class="member-actions">
-                        <button class="actions-toggle" onclick="toggleActions(${member.id}, event)">
-                            ⋮
-                        </button>
-                        <div class="actions-menu" id="actions-${member.id}">
-                            ${hasFullAccess ? `
-                                <div class="action-item" onclick="performAction(${member.id}, 'edit')">
-                                    ✏️ تعديل العضوية
-                                </div>
-                            ` : ''}
-                            
-                            <div class="action-item success" onclick="performAction(${member.id}, 'promote')">
-                                ⬆️ ترقية العضوية
+            const roleInfo = rolesMap[member.role] || rolesMap['user'];
+            
+            const card = document.createElement('div');
+            card.className = 'member-card';
+            card.setAttribute('data-role', member.role);
+            
+            let showActions = false;
+            
+            if (member.id === 1) {
+                showActions = false;
+            } else if (currentUserRole === 'super_admin') {
+                showActions = true;
+            } else if (currentUserRole === 'admin') {
+                showActions = ['monitor', 'supervisor', 'moderator', 'user'].includes(member.role);
+            } else if (currentUserRole === 'monitor') {
+                showActions = ['supervisor', 'moderator', 'user'].includes(member.role);
+            } else {
+                showActions = false;
+            }
+            
+            card.innerHTML = `
+                ${showActions ? `
+                <div class="member-actions">
+                    <button class="actions-toggle" onclick="toggleActions(${member.id}, event)">
+                        ⋮
+                    </button>
+                    <div class="actions-menu" id="actions-${member.id}">
+                        ${hasFullAccess ? `
+                            <div class="action-item" onclick="performAction(${member.id}, 'edit')">
+                                ✏️ تعديل العضوية
                             </div>
-                            
-                            <div class="action-item warning" onclick="performAction(${member.id}, 'suspend')">
-                                ⸕️ تجميد العضوية
-                            </div>
-                            
-                            ${hasFullAccess ? `
-                                <div class="action-item danger" onclick="performAction(${member.id}, 'delete')">
-                                    🗑️ حذف العضوية
-                                </div>
-                            ` : ''}
+                        ` : ''}
+                        
+                        <div class="action-item success" onclick="performAction(${member.id}, 'promote')">
+                            ⬆️ ترقية العضوية
                         </div>
+                        
+                        <div class="action-item warning" onclick="performAction(${member.id}, 'suspend')">
+                            ⸕️ تجميد العضوية
+                        </div>
+                        
+                        ${hasFullAccess ? `
+                            <div class="action-item danger" onclick="performAction(${member.id}, 'delete')">
+                                🗑️ حذف العضوية
+                            </div>
+                        ` : ''}
                     </div>
-                    ` : ''}
-                    <div class="member-name">${escapeHtml(member.fullname)}</div>
-                    <div class="member-username ${member.role}-color">@${escapeHtml(member.username)}</div>
-                    <span class="member-role role-${member.role}">${roleLabels[member.role]}</span>
-                    <div>
-                        <a href="${escapeHtml(member.username)}" class="view-profile-btn">عرض الملف</a>
-                    </div>
-                `;
-                
-                membersGrid.appendChild(card);
+                </div>
+                ` : ''}
+                <div class="member-name">${escapeHtml(member.fullname)}</div>
+                <div class="member-username" style="color: ${roleInfo.color};">@${escapeHtml(member.username)}</div>
+                <span class="member-role" style="background-color: ${roleInfo.bg}; color: ${roleInfo.color};">
+                    ${escapeHtml(roleInfo.name)}
+                </span>
+                <div>
+                    <a href="${escapeHtml(member.username)}" class="view-profile-btn">عرض الملف</a>
+                </div>
+            `;
+            
+            membersGrid.appendChild(card);
         }
 
         function displayPagination(page, total, count) {
@@ -2353,41 +2221,6 @@ $hasAnyAccess = $hasFullAccess || $hasLimitedAccess;
         let currentPromotionUserId = null;
         let selectedNewRole = null;
 
-        // قائمة الرتب مع معلوماتها (بدون super_admin)
-        const rolesData = {
-            'user': {
-                name: 'عضو',
-                icon: '👤',
-                level: 1,
-                color: '#1976d2'
-            },
-            'moderator': {
-                name: 'مشرف مساعد',
-                icon: '🔵',
-                level: 2,
-                color: '#2563eb'
-            },
-            'supervisor': {
-                name: 'مشرف',
-                icon: '🟠',
-                level: 3,
-                color: '#ea580c'
-            },
-            'monitor': {
-                name: 'مراقب',
-                icon: '🟤',
-                level: 4,
-                color: '#92400e'
-            },
-            'admin': {
-                name: 'مدير',
-                icon: '🔴',
-                level: 5,
-                color: '#dc2626'
-            }
-        };
-
-        // فتح صندوق الترقية
         function openPromotionModal(userId) {
             currentPromotionUserId = userId;
             selectedNewRole = null;
@@ -2403,9 +2236,9 @@ $hasAnyAccess = $hasFullAccess || $hasLimitedAccess;
                     const member = data.user;
                     
                     document.getElementById('promotionMemberName').textContent = member.fullname;
-                    const currentRoleInfo = rolesData[member.role] || rolesData['user'];
+                    const currentRoleInfo = rolesMap[member.role] || rolesMap['user'];
                     document.getElementById('promotionCurrentRole').innerHTML = 
-                        `${currentRoleInfo.icon} ${currentRoleInfo.name}`;
+                        `${currentRoleInfo.name}`;
                     
                     buildRolesGrid(member.role);
                     
@@ -2421,29 +2254,22 @@ $hasAnyAccess = $hasFullAccess || $hasLimitedAccess;
             });
         }
 
-        // بناء شبكة الرتب
         function buildRolesGrid(currentRole) {
             const rolesGrid = document.getElementById('rolesGrid');
             rolesGrid.innerHTML = '';
             
-            const currentLevel = rolesData[currentRole]?.level || 1;
-            
-            // تحديد الرتب المتاحة حسب دور المستخدم الحالي
             let availableRoles = [];
             
             if (currentUserRole === 'super_admin') {
-                // المدير العام: جميع الرتب (بدون super_admin)
                 availableRoles = ['user', 'moderator', 'supervisor', 'monitor', 'admin'];
             } else if (currentUserRole === 'admin') {
-                // المدير: فقط الرتب الأقل منه
                 availableRoles = ['user', 'moderator', 'supervisor', 'monitor'];
             } else if (currentUserRole === 'monitor') {
-                // المراقب: فقط user, moderator, supervisor
                 availableRoles = ['user', 'moderator', 'supervisor'];
             }
             
             availableRoles.forEach(roleKey => {
-                const role = rolesData[roleKey];
+                const role = rolesMap[roleKey];
                 const isCurrentRole = roleKey === currentRole;
                 
                 let isDisabled = isCurrentRole;
@@ -2454,18 +2280,20 @@ $hasAnyAccess = $hasFullAccess || $hasLimitedAccess;
                 }
                 
                 const roleDiv = document.createElement('div');
-                roleDiv.className = `role-option role-${roleKey.replace('_', '-')}`;
+                roleDiv.className = `role-option`;
                 
                 if (isDisabled) {
                     roleDiv.classList.add('disabled');
                     roleDiv.title = disabledReason;
+                    roleDiv.style.borderColor = '#ccc';
+                    roleDiv.style.backgroundColor = '#f5f5f5';
                 } else {
+                    roleDiv.style.borderColor = role.color;
                     roleDiv.onclick = () => selectRole(roleKey, roleDiv);
                 }
                 
                 roleDiv.innerHTML = `
-                    <div class="role-icon">${role.icon}</div>
-                    <div class="role-name">${role.name}</div>
+                    <div class="role-name" style="color: ${role.color}; font-weight: 600;">${escapeHtml(role.name)}</div>
                     ${isCurrentRole ? '<div style="font-size: 11px; color: #666; margin-top: 5px;">الحالية</div>' : ''}
                 `;
                 
@@ -2475,7 +2303,6 @@ $hasAnyAccess = $hasFullAccess || $hasLimitedAccess;
             document.getElementById('confirmPromotionBtn').disabled = true;
         }
 
-        // اختيار رتبة
         function selectRole(roleKey, element) {
             selectedNewRole = roleKey;
             
@@ -2484,76 +2311,53 @@ $hasAnyAccess = $hasFullAccess || $hasLimitedAccess;
             });
             
             element.classList.add('selected');
+            const roleInfo = rolesMap[roleKey];
+            element.style.backgroundColor = roleInfo.bg;
             
             document.getElementById('confirmPromotionBtn').disabled = false;
         }
 
-        // تأكيد الترقية
         function confirmPromotion() {
             if (!selectedNewRole || !currentPromotionUserId) {
                 showToast('يرجى اختيار رتبة أولاً', 'error');
                 return;
             }
             
-            const roleInfo = rolesData[selectedNewRole];
+            const roleInfo = rolesMap[selectedNewRole];
             
             if (!confirm(`هل أنت متأكد من ترقية هذا العضو إلى رتبة "${roleInfo.name}"؟`)) {
                 return;
             }
             
-            // حفظ القيم قبل إغلاق النافذة
             const userIdToPromote = currentPromotionUserId;
             const roleToPromote = selectedNewRole;
             
-            // إغلاق النافذة
             closePromotionModal();
             
-            // عرض رسالة تحميل
             showToast('جاري معالجة الترقية...', 'success');
             
-            // إنشاء FormData
             const formData = new FormData();
             formData.append('admin_action', 'change_role');
             formData.append('user_id', userIdToPromote);
             formData.append('new_role', roleToPromote);
             
-            // تسجيل للتشخيص
-            console.log('=== إرسال طلب الترقية ===');
-            console.log('admin_action:', 'change_role');
-            console.log('user_id:', userIdToPromote);
-            console.log('new_role:', roleToPromote);
-            
             fetch('members.php', {
                 method: 'POST',
                 body: formData
             })
-            .then(response => {
-                console.log('=== استجابة السيرفر ===');
-                console.log('Status:', response.status);
-                return response.text(); // نستخدم text أولاً للتشخيص
-            })
+            .then(response => response.text())
             .then(text => {
-                console.log('Response Text:', text);
-                
-                // محاولة تحويله إلى JSON
                 try {
                     const data = JSON.parse(text);
-                    console.log('Parsed JSON:', data);
                     
                     if (data.success) {
                         showToast(data.message || 'تمت الترقية بنجاح', 'success');
                         setTimeout(() => loadMembers(), 1500);
                     } else {
                         showToast(data.message || 'فشلت العملية', 'error');
-                        
-                        // إذا كان هناك debug info
-                        if (data.debug) {
-                            console.error('Debug Info:', data.debug);
-                        }
                     }
                 } catch (e) {
                     console.error('JSON Parse Error:', e);
-                    console.error('Raw Response:', text);
                     showToast('خطأ في معالجة الاستجابة من السيرفر', 'error');
                 }
             })
@@ -2563,7 +2367,6 @@ $hasAnyAccess = $hasFullAccess || $hasLimitedAccess;
             });
         }
 
-        // إغلاق صندوق الترقية
         function closePromotionModal() {
             document.getElementById('promotionModal').classList.remove('show');
             document.body.style.overflow = '';
@@ -2571,7 +2374,6 @@ $hasAnyAccess = $hasFullAccess || $hasLimitedAccess;
             selectedNewRole = null;
         }
 
-        // إغلاق عند الضغط على ESC
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 const modal = document.getElementById('promotionModal');
@@ -2606,7 +2408,6 @@ $hasAnyAccess = $hasFullAccess || $hasLimitedAccess;
                 <div class="roles-selection">
                     <p class="selection-label">اختر الرتبة الجديدة:</p>
                     <div class="roles-grid" id="rolesGrid">
-                        <!-- سيتم ملؤها ديناميكياً -->
                     </div>
                 </div>
             </div>

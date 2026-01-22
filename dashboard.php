@@ -14,6 +14,7 @@ if (!$auth->isLoggedIn()) {
 
 $user = $auth->getCurrentUser();
 require_once 'site-functions.php';
+require_once 'roles-config.php';
 ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -122,25 +123,10 @@ require_once 'site-functions.php';
         
         .user-badge {
             display: inline-block;
-            padding: 5px 15px;
+            padding: 6px 16px;
             border-radius: 20px;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 600;
-        }
-        
-        .badge-user {
-            background: #e3f2fd;
-            color: #1976d2;
-        }
-        
-        .badge-admin {
-            background: #fce4ec;
-            color: #c2185b;
-        }
-        
-        .badge-moderator {
-            background: #fff3e0;
-            color: #e65100;
         }
         
         .action-buttons {
@@ -246,7 +232,6 @@ require_once 'site-functions.php';
                     <div class="info-row">
                         <span class="info-label">البريد الإلكتروني:</span>
                         <span class="info-value" style="direction: ltr; text-align: right;"><?php 
-                            // إذا كان المدير العام، استخدم بريد الموقع من قاعدة البيانات
                             $displayEmail = ($user['role'] === 'super_admin') ? getSiteEmail() : $user['email'];
                             echo htmlspecialchars($displayEmail); 
                         ?></span>
@@ -256,18 +241,11 @@ require_once 'site-functions.php';
                         <span class="info-label">نوع الحساب:</span>
                         <span class="info-value">
                             <?php
-                            $badge_class = '';
-                            $badge_icon = '';
-                            $badge_text = '';
-                            
-                            require_once 'roles-config.php';
                             $roleInfo = getRoleInfo($user['role']);
-                            $badge_class = 'badge-' . str_replace('_', '-', $user['role']);
-                            $badge_icon = $roleInfo['icon'];
-                            $badge_text = $roleInfo['name'];
+                            $badgeStyle = "background-color: {$roleInfo['bg_color']}; color: {$roleInfo['color']};";
                             ?>
-                            <span class="user-badge <?php echo $badge_class; ?>">
-                                <?php echo $badge_icon . ' ' . $badge_text; ?>
+                            <span class="user-badge" style="<?php echo $badgeStyle; ?>">
+                                <?php echo htmlspecialchars($roleInfo['name']); ?>
                             </span>
                         </span>
                     </div>

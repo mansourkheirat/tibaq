@@ -5,6 +5,7 @@ checkMaintenanceMode();
 require_once 'Auth.php';
 require_once 'database.php';
 require_once 'site-functions.php';
+require_once 'roles-config.php';
 
 $auth = new Auth();
 
@@ -403,32 +404,12 @@ $csrf_token = $auth->generateCsrfToken();
             font-size: 14px;
         }
         
-        .badge {
+        .user-badge {
             display: inline-block;
-            padding: 5px 12px;
+            padding: 6px 16px;
             border-radius: 20px;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 600;
-        }
-        
-        .badge-success {
-            background: #d4edda;
-            color: #155724;
-        }
-        
-        .badge-warning {
-            background: #fff3cd;
-            color: #856404;
-        }
-        
-        .badge-admin {
-            background: #fce4ec;
-            color: #c2185b;
-        }
-        
-        .badge-moderator {
-            background: #fff3e0;
-            color: #e65100;
         }
     </style>
 </head>
@@ -490,14 +471,12 @@ $csrf_token = $auth->generateCsrfToken();
                         <span class="info-label">نوع الحساب:</span>
                         <span class="info-value">
                             <?php
-                            if ($currentUser['role'] === 'super_admin' || $currentUser['role'] === 'admin') {
-                                echo '<span class="badge badge-admin">👑 مدير</span>';
-                            } elseif ($currentUser['role'] === 'moderator') {
-                                echo '<span class="badge badge-moderator">🛡️ مشرف</span>';
-                            } else {
-                                echo '<span class="badge badge-success">👤 مستخدم</span>';
-                            }
+                            $roleInfo = getRoleInfo($currentUser['role']);
+                            $badgeStyle = "background-color: {$roleInfo['bg_color']}; color: {$roleInfo['color']};";
                             ?>
+                            <span class="user-badge" style="<?php echo $badgeStyle; ?>">
+                                <?php echo htmlspecialchars($roleInfo['name']); ?>
+                            </span>
                         </span>
                     </div>
 

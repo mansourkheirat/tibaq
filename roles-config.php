@@ -7,42 +7,36 @@
 define('ROLES', [
     'super_admin' => [
         'name' => 'المدير العام',
-        'icon' => '👑',
         'color' => '#1a1a1a',
         'bg_color' => '#e5e5e5',
         'level' => 6
     ],
     'admin' => [
         'name' => 'مدير',
-        'icon' => '🔴',
         'color' => '#dc2626',
         'bg_color' => '#fee2e2',
         'level' => 5
     ],
     'monitor' => [
         'name' => 'مراقب',
-        'icon' => '🟤',
         'color' => '#92400e',
         'bg_color' => '#fef3c7',
         'level' => 4
     ],
     'supervisor' => [
         'name' => 'مشرف',
-        'icon' => '🟠',
         'color' => '#ea580c',
         'bg_color' => '#ffedd5',
         'level' => 3
     ],
     'moderator' => [
         'name' => 'مشرف مساعد',
-        'icon' => '🔵',
-        'color' => '#166534',
+        'color' => '#059669',
         'bg_color' => '#dcfce7',
         'level' => 2
     ],
     'user' => [
         'name' => 'عضو',
-        'icon' => '👤',
         'color' => '#1976d2',
         'bg_color' => '#e3f2fd',
         'level' => 1
@@ -62,14 +56,6 @@ function getRoleInfo($role) {
 function getRoleName($role) {
     $info = getRoleInfo($role);
     return $info['name'];
-}
-
-/**
- * الحصول على أيقونة الرتبة
- */
-function getRoleIcon($role) {
-    $info = getRoleInfo($role);
-    return $info['icon'];
 }
 
 /**
