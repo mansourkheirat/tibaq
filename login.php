@@ -56,11 +56,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($maintenanceMode === 'closed') {
                     $currentUser = $auth->getCurrentUser();
                     if (!canAccessInMaintenance($currentUser['role'], $currentUser['id'])) {
-                        // المستخدم ليس من الرتب المسموحة ولا من الأعضاء المصرح لهم
                         $auth->logout();
                         $errors[] = 'ليس لديك صلاحية للدخول في وضع الصيانة.';
                     } else {
-                        // تسجيل محاولة تسجيل دخول ناجحة
                         require_once 'database.php';
                         $db = Database::getInstance();
                         $db->execute(
@@ -68,12 +66,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             [$username_or_email, $_SERVER['REMOTE_ADDR']]
                         );
                         
-                        // إعادة التوجيه إلى الصفحة الرئيسية
                         header('Location: ./');
                         exit;
                     }
                 } else {
-                    // تسجيل محاولة تسجيل دخول ناجحة
                     require_once 'database.php';
                     $db = Database::getInstance();
                     $db->execute(
@@ -81,12 +77,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         [$username_or_email, $_SERVER['REMOTE_ADDR']]
                     );
                     
-                    // إعادة التوجيه إلى الصفحة الرئيسية
                     header('Location: ./');
                     exit;
                 }
             } else {
-                // تسجيل محاولة تسجيل دخول فاشلة
                 $db = Database::getInstance();
                 $db->execute(
                     "INSERT INTO login_attempts (username_or_email, ip_address, success) VALUES (?, ?, 0)",
@@ -101,6 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $csrf_token = $auth->generateCsrfToken();
 require_once 'site-functions.php';
+$siteName = getSiteName();
 ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -155,40 +150,60 @@ require_once 'site-functions.php';
         .form-group {
             position: relative;
         }
-        
-        /* شعار الموقع في وضع الصيانة - إزالة جميع الخلفيات */
+
+        /* ==================== الشعار الموحد ==================== */
+        .auth-navbar-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 700;
+            color: #000000;
+            transition: all 0.3s ease;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .auth-navbar-logo:hover {
+            color: #0891E6;
+        }
+
+        .auth-navbar-logo:hover .auth-logo-icon {
+            animation: logoRotate 0.6s ease-in-out;
+        }
+
+        .auth-logo-icon {
+            width: 40px;
+            height: 40px;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+
+        .auth-logo-text {
+            font-size: 18px;
+            transition: color 0.3s ease;
+        }
+
+        @keyframes logoRotate {
+            0% {
+                transform: rotateY(0deg) scale(1);
+            }
+            50% {
+                transform: rotateY(180deg) scale(1.1);
+            }
+            100% {
+                transform: rotateY(360deg) scale(1);
+            }
+        }
+
+        /* شعار الموقع في وضع الصيانة */
         .maintenance-logo-container {
             text-align: center;
             padding: 30px 20px;
             background: transparent !important;
-            background-color: transparent !important;
-            background-image: none !important;
-            box-shadow: none !important;
-            border: none !important;
-            margin: 0 !important;
-            border-bottom: none !important;
-            border-top: none !important;
-            border-left: none !important;
-            border-right: none !important;
-            /* إزالة أي تأثير من simple-header */
-            position: static !important;
         }
-        
-        /* التأكد من عدم وجود خلفية من أي CSS آخر */
-        .maintenance-logo-container *,
-        .maintenance-logo-container *::before,
-        .maintenance-logo-container *::after {
-            background: transparent !important;
-            background-color: transparent !important;
-            background-image: none !important;
-            box-shadow: none !important;
-        }
-        
-        /* منع أي CSS من simple-header من التأثير على الشعار */
-        .maintenance-logo-container:not(.simple-header) {
-            background: transparent !important;
-        }
-        
+
         .maintenance-logo {
             display: inline-flex;
             align-items: center;
@@ -199,9 +214,84 @@ require_once 'site-functions.php';
             pointer-events: none;
             user-select: none;
         }
-        
+
         .maintenance-logo span:first-child {
             font-size: 32px;
+        }
+
+        /* الشريط العلوي البسيط */
+        .simple-header {
+            background: #FFFFFF;
+            padding: 12px 30px;
+            border-bottom: 1px solid #E5E7EB;
+            margin-bottom: 40px;
+        }
+
+        .simple-header-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .simple-header .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: #000000;
+            font-weight: 700;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .simple-header .logo:hover {
+            color: #0891E6;
+        }
+
+        .simple-header .logo:hover svg {
+            animation: logoRotate 0.6s ease-in-out;
+        }
+
+        .simple-header .logo svg {
+            width: 36px;
+            height: 36px;
+            transition: all 0.3s ease;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-link {
+            padding: 8px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            background: var(--light-bg);
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-link:hover {
+            background: var(--primary-light);
+            color: #00A6FB;
+        }
+
+        .nav-link.nav-register {
+            background: #10B981;
+            color: #FFFFFF;
+        }
+
+        .nav-link.nav-register:hover {
+            background: #0EA872;
         }
     </style>
 </head>
@@ -210,24 +300,76 @@ require_once 'site-functions.php';
     <?php if ($maintenanceMode === 'closed'): ?>
     <!-- شعار الموقع في الوسط (عند وضع الصيانة مغلق) -->
     <div class="maintenance-logo-container">
-        <div class="maintenance-logo">
-            <span>📊</span>
-            <span><?php echo htmlspecialchars(getSiteName()); ?></span>
-        </div>
+        <a href="./" class="auth-navbar-logo" style="margin-bottom: 10px;">
+            <svg class="auth-logo-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#0891E6;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#0284C7;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                
+                <path d="M 15 25 Q 50 20 85 25 L 85 75 Q 50 80 15 75 Z" fill="#F3F4F6" stroke="#0891E6" stroke-width="2"/>
+                <path d="M 15 28 L 50 26 L 50 72 L 15 75 Z" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="1.5"/>
+                <path d="M 50 26 L 85 28 L 85 75 L 50 72 Z" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="1.5"/>
+                
+                <line x1="22" y1="36" x2="42" y2="36" stroke="#0891E6" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+                <line x1="22" y1="44" x2="42" y2="44" stroke="#0891E6" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+                <line x1="22" y1="52" x2="42" y2="52" stroke="#0891E6" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+                <line x1="22" y1="60" x2="36" y2="60" stroke="#0891E6" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+                
+                <line x1="58" y1="36" x2="78" y2="36" stroke="#0284C7" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+                <line x1="58" y1="44" x2="78" y2="44" stroke="#0284C7" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+                <line x1="58" y1="52" x2="78" y2="52" stroke="#0284C7" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+                <line x1="58" y1="60" x2="72" y2="60" stroke="#0284C7" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+                
+                <circle cx="50" cy="50" r="6" fill="url(#logoGradient)"/>
+                <circle cx="50" cy="50" r="4" fill="none" stroke="#FFFFFF" stroke-width="1.5"/>
+                <line x1="46" y1="50" x2="54" y2="50" stroke="#FFFFFF" stroke-width="1"/>
+                <line x1="50" y1="46" x2="50" y2="54" stroke="#FFFFFF" stroke-width="1"/>
+            </svg>
+            <span class="auth-logo-text"><?php echo htmlspecialchars($siteName); ?></span>
+        </a>
     </div>
     <?php else: ?>
     <!-- الشريط العلوي البسيط -->
     <div class="simple-header">
         <div class="simple-header-content">
             <a href="./" class="logo">
-                <span>📊</span>
-                <span>طباق وإسناد</span>
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#0891E6;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#0284C7;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    
+                    <path d="M 15 25 Q 50 20 85 25 L 85 75 Q 50 80 15 75 Z" fill="#F3F4F6" stroke="#0891E6" stroke-width="2"/>
+                    <path d="M 15 28 L 50 26 L 50 72 L 15 75 Z" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="1.5"/>
+                    <path d="M 50 26 L 85 28 L 85 75 L 50 72 Z" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="1.5"/>
+                    
+                    <line x1="22" y1="36" x2="42" y2="36" stroke="#0891E6" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+                    <line x1="22" y1="44" x2="42" y2="44" stroke="#0891E6" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+                    <line x1="22" y1="52" x2="42" y2="52" stroke="#0891E6" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+                    <line x1="22" y1="60" x2="36" y2="60" stroke="#0891E6" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+                    
+                    <line x1="58" y1="36" x2="78" y2="36" stroke="#0284C7" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+                    <line x1="58" y1="44" x2="78" y2="44" stroke="#0284C7" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+                    <line x1="58" y1="52" x2="78" y2="52" stroke="#0284C7" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+                    <line x1="58" y1="60" x2="72" y2="60" stroke="#0284C7" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+                    
+                    <circle cx="50" cy="50" r="6" fill="url(#logoGradient)"/>
+                    <circle cx="50" cy="50" r="4" fill="none" stroke="#FFFFFF" stroke-width="1.5"/>
+                    <line x1="46" y1="50" x2="54" y2="50" stroke="#FFFFFF" stroke-width="1"/>
+                    <line x1="50" y1="46" x2="50" y2="54" stroke="#FFFFFF" stroke-width="1"/>
+                </svg>
+                <span><?php echo htmlspecialchars($siteName); ?></span>
             </a>
             
             <div class="header-buttons">
-                <a href="./" class="btn-home">← الرئيسية</a>
+                <a href="./" class="nav-link">← الرئيسية</a>
                 <?php if ($maintenanceMode !== 'locked'): ?>
-                <a href="register" class="btn-switch-register">التسجيل</a>
+                <a href="register" class="nav-link nav-register">التسجيل</a>
                 <?php endif; ?>
             </div>
         </div>
@@ -237,6 +379,40 @@ require_once 'site-functions.php';
     <!-- محتوى تسجيل الدخول -->
     <div class="auth-container">
         <div class="auth-box">
+            <?php if ($maintenanceMode !== 'closed' && $maintenanceMode !== 'locked'): ?>
+            <!-- الشعار في المنتصف (عند عدم وجود صيانة) -->
+            <a href="./" class="auth-navbar-logo">
+                <svg class="auth-logo-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="logoGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#0891E6;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#0284C7;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    
+                    <path d="M 15 25 Q 50 20 85 25 L 85 75 Q 50 80 15 75 Z" fill="#F3F4F6" stroke="#0891E6" stroke-width="2"/>
+                    <path d="M 15 28 L 50 26 L 50 72 L 15 75 Z" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="1.5"/>
+                    <path d="M 50 26 L 85 28 L 85 75 L 50 72 Z" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="1.5"/>
+                    
+                    <line x1="22" y1="36" x2="42" y2="36" stroke="#0891E6" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+                    <line x1="22" y1="44" x2="42" y2="44" stroke="#0891E6" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+                    <line x1="22" y1="52" x2="42" y2="52" stroke="#0891E6" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+                    <line x1="22" y1="60" x2="36" y2="60" stroke="#0891E6" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+                    
+                    <line x1="58" y1="36" x2="78" y2="36" stroke="#0284C7" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+                    <line x1="58" y1="44" x2="78" y2="44" stroke="#0284C7" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+                    <line x1="58" y1="52" x2="78" y2="52" stroke="#0284C7" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+                    <line x1="58" y1="60" x2="72" y2="60" stroke="#0284C7" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+                    
+                    <circle cx="50" cy="50" r="6" fill="url(#logoGradient2)"/>
+                    <circle cx="50" cy="50" r="4" fill="none" stroke="#FFFFFF" stroke-width="1.5"/>
+                    <line x1="46" y1="50" x2="54" y2="50" stroke="#FFFFFF" stroke-width="1"/>
+                    <line x1="50" y1="46" x2="50" y2="54" stroke="#FFFFFF" stroke-width="1"/>
+                </svg>
+                <span class="auth-logo-text"><?php echo htmlspecialchars($siteName); ?></span>
+            </a>
+            <?php endif; ?>
+
             <div class="auth-box-header">
                 <h1>مرحباً بعودتك</h1>
                 <p>سجل دخولك للوصول إلى حسابك</p>
@@ -260,7 +436,6 @@ require_once 'site-functions.php';
                 </div>
             <?php endif; ?>
             
-            <!-- رسالة الخطأ عبر Ajax (لوضع الصيانة) -->
             <div id="ajaxError" class="alert alert-error" style="display: none;">
                 <strong>⚠️ خطأ في تسجيل الدخول:</strong>
                 <ul id="ajaxErrorList"></ul>
@@ -312,7 +487,6 @@ require_once 'site-functions.php';
 
     <script src="JS/main.js"></script>
     <script>
-        // إظهار/إخفاء كلمة المرور
         function togglePassword() {
             const passwordInput = document.getElementById('password');
             const showIcon = document.querySelector('.show-password');
@@ -326,21 +500,17 @@ require_once 'site-functions.php';
             }
         }
         
-        // معالجة تسجيل الدخول عبر Ajax
         document.addEventListener('DOMContentLoaded', function() {
             const loginForm = document.getElementById('loginForm');
             const ajaxError = document.getElementById('ajaxError');
             const ajaxErrorList = document.getElementById('ajaxErrorList');
-            const maintenanceMode = '<?php echo $maintenanceMode; ?>';
             
-            // التركيز على حقل اسم المستخدم عند تحميل الصفحة
             document.getElementById('username').focus();
             
             if (loginForm) {
                 loginForm.addEventListener('submit', function(e) {
                     e.preventDefault();
                     
-                    // إخفاء رسالة الخطأ السابقة
                     ajaxError.style.display = 'none';
                     ajaxErrorList.innerHTML = '';
                     
@@ -351,11 +521,9 @@ require_once 'site-functions.php';
                     const submitBtn = document.querySelector('.btn-submit');
                     const originalBtnText = submitBtn.textContent;
                     
-                    // تعطيل الزر أثناء المعالجة
                     submitBtn.disabled = true;
                     submitBtn.textContent = 'جاري تسجيل الدخول...';
                     
-                    // إرسال البيانات عبر Ajax
                     fetch('login_ajax.php', {
                         method: 'POST',
                         headers: {
@@ -376,20 +544,16 @@ require_once 'site-functions.php';
                     })
                     .then(data => {
                         if (data.success) {
-                            // تسجيل الدخول ناجح - إخفاء رسالة الخطأ أولاً
                             ajaxError.style.display = 'none';
                             ajaxErrorList.innerHTML = '';
                             
-                            // إعادة التوجيه - استخدام setTimeout لضمان معالجة الاستجابة
                             const redirectUrl = data.redirect || './';
                             setTimeout(function() {
-                                // محاولة استخدام replace أولاً، ثم href كبديل
                                 try {
                                     window.location.replace(redirectUrl);
                                 } catch(e) {
                                     window.location.href = redirectUrl;
                                 }
-                                // إذا لم تعمل أي منهما، استخدم reload
                                 setTimeout(function() {
                                     if (window.location.pathname === '/login' || window.location.pathname.includes('login')) {
                                         window.location.reload(true);
@@ -397,18 +561,15 @@ require_once 'site-functions.php';
                                 }, 100);
                             }, 100);
                         } else {
-                            // فشل تسجيل الدخول
                             submitBtn.disabled = false;
                             submitBtn.textContent = originalBtnText;
                             
-                            // إذا كان خطأ CSRF، قم بتحديث الصفحة
                             if (data.csrf_error) {
                                 setTimeout(function() {
                                     window.location.reload();
                                 }, 2000);
                             }
                             
-                            // عرض رسالة الخطأ
                             if (data.errors && data.errors.length > 0) {
                                 ajaxErrorList.innerHTML = '';
                                 data.errors.forEach(error => {
@@ -417,11 +578,8 @@ require_once 'site-functions.php';
                                     ajaxErrorList.appendChild(li);
                                 });
                                 ajaxError.style.display = 'block';
-                                
-                                // تمرير للأسفل لرؤية الرسالة
                                 ajaxError.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                             } else if (data.message) {
-                                // إذا لم تكن هناك errors array، استخدم message
                                 ajaxErrorList.innerHTML = '<li>' + data.message + '</li>';
                                 ajaxError.style.display = 'block';
                                 ajaxError.scrollIntoView({ behavior: 'smooth', block: 'nearest' });

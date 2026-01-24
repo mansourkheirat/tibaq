@@ -459,6 +459,12 @@ $hasAnyAccess = $hasFullAccess || $hasLimitedAccess;
             color: var(--text-secondary);
             margin-bottom: 25px;
         }
+
+        .page-header p span {
+            font-size: 18px;
+            color: #1565C0;
+            font-weight: bold;
+        }
         
         .search-container {
             max-width: 700px;
@@ -1438,8 +1444,8 @@ $hasAnyAccess = $hasFullAccess || $hasLimitedAccess;
         <div class="members-container">
             
             <div class="page-header">
-                <h1>أعضاء المنصة</h1>
-                <p>مرحباً، تعرف على جميع أعضاء منصة: <?php echo htmlspecialchars($siteName); ?></p>
+                <h1>أعضاء الموقع</h1>
+                <p>مرحبا، تعرف على جميع أعضاء موقع: <span><?php echo htmlspecialchars($siteName); ?></span>.</p>
             </div>
 
             <div class="search-container">
