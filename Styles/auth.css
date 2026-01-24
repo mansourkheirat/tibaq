@@ -21,12 +21,12 @@
 }
 
 .btn-home {
-    padding: 10px 24px;
+    padding: 8px 16px;
     border-radius: 8px;
     text-decoration: none;
-    font-weight: 600;
-    font-size: 15px;
-    transition: all 0.3s;
+    color: #374151;
+    font-size: 14px;
+    font-weight: 500;
     background: var(--light-bg);
     color: var(--text-primary);
     border: 1px solid var(--border-color);
@@ -37,36 +37,18 @@
     color: #00A6FB;
 }
 
-.btn-switch-login {
-    padding: 10px 24px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 15px;
-    transition: all 0.3s;
-    background: #00A6FB !important;
-    color: #FFFFFF !important;
-}
-
-.btn-switch-login:hover {
-    background: #0891E6 !important;
-    transform: translateY(-2px);
-}
-
 .btn-switch-register {
     padding: 10px 24px;
     border-radius: 8px;
     text-decoration: none;
     font-weight: 600;
     font-size: 15px;
-    transition: all 0.3s;
     background: #10B981 !important;
     color: #FFFFFF !important;
 }
 
 .btn-switch-register:hover {
     background: #0EA872 !important;
-    transform: translateY(-2px);
 }
 
 /* حاوية المصادقة */
@@ -136,7 +118,6 @@
     border: 2px solid var(--border-color);
     border-radius: 10px;
     font-size: 15px;
-    transition: all 0.3s;
     background: var(--white);
     color: var(--text-primary);
 }
@@ -207,14 +188,11 @@
     font-size: 16px;
     font-weight: 700;
     cursor: pointer;
-    transition: all 0.3s;
     margin-top: 10px;
 }
 
 .btn-submit:hover {
     background: #0582CA;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 166, 251, 0.3);
 }
 
 /* تذييل النموذج */

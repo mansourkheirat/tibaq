@@ -119,52 +119,6 @@ body {
     background: var(--primary-light);
 }
 
-/* أزرار الدخول والتسجيل */
-.auth-buttons {
-    display: flex;
-    gap: 0;
-    border-radius: 0;
-    overflow: hidden;
-}
-
-.btn-login, .btn-register {
-    padding: 11px 24px;
-    font-weight: 600;
-    font-size: 15px;
-    text-decoration: none;
-    transition: all 0.3s;
-    border: none;
-    display: inline-block;
-}
-
-.btn-login {
-    background: #00A6FB !important;
-    color: #FFFFFF !important;
-    border-radius: 0 10px 10px 0;
-    border-left: 0 !important;
-    border-top-left-radius: 0 !important;
-    border-bottom-left-radius: 0 !important;
-}
-
-.btn-login:hover {
-    background: #0891E6 !important;
-    color: #FFFFFF !important;
-}
-
-.btn-register {
-    background: #10B981 !important;
-    color: #FFFFFF !important;
-    border-radius: 10px 0 0 10px;
-    border-right: 0 !important;
-    border-top-right-radius: 0 !important;
-    border-bottom-right-radius: 0 !important;
-}
-
-.btn-register:hover {
-    background: #0EA872 !important;
-    color: #FFFFFF !important;
-}
-
 /* قائمة الموبايل */
 .menu-icon {
     display: none;
