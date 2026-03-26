@@ -113,22 +113,74 @@ $siteName = getSiteName();
         .strength-medium { width: 66%; background: #ff9800; }
         .strength-strong { width: 100%; background: #4caf50; }
 
-        /* ==================== الشعار الموحد ==================== */
+        /* ===== الأزرار العلوية ===== */
+        .header-buttons-container {
+            position: fixed;
+            top: 20px;
+            left: 30px;
+            display: flex;
+            gap: 12px;
+            z-index: 100;
+        }
+
+        .btn-home, .btn-login {
+            padding: 10px 18px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: 2px solid transparent;
+        }
+
+        .btn-home {
+            color: #374151;
+            background: transparent;
+            border: 2px solid #E5E7EB;
+        }
+
+        .btn-home:hover {
+            background: #F3F4F6;
+            border-color: #D1D5DB;
+            color: #0891E6;
+        }
+
+        .btn-login {
+            background: #0891E6;
+            color: #FFFFFF;
+            border: 2px solid #0891E6;
+        }
+
+        .btn-login:hover {
+            background: #0284C7;
+            border-color: #0284C7;
+        }
+
+        /* ===== الشعار الكبير في المنتصف ===== */
         .auth-navbar-logo {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
             text-decoration: none;
-            font-size: 18px;
+            font-size: 24px;
             font-weight: 700;
             color: #000000;
             transition: all 0.3s ease;
             justify-content: center;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
+        }
+
+        .auth-navbar-logo.auth-logo-large {
+            gap: 20px;
+            font-size: 28px;
+            margin-bottom: 50px;
         }
 
         .auth-navbar-logo:hover {
-            color: #1565C0;
+            color: #0891E6;
         }
 
         .auth-navbar-logo:hover .auth-logo-icon {
@@ -136,14 +188,19 @@ $siteName = getSiteName();
         }
 
         .auth-logo-icon {
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             flex-shrink: 0;
             transition: all 0.3s ease;
         }
 
+        .auth-logo-icon.auth-logo-large-icon {
+            width: 70px;
+            height: 70px;
+        }
+
         .auth-logo-text {
-            font-size: 18px;
+            font-size: inherit;
             transition: color 0.3s ease;
         }
 
@@ -159,89 +216,70 @@ $siteName = getSiteName();
             }
         }
 
-        /* الشريط العلوي البسيط */
-        .simple-header {
-            background: #FFFFFF;
-            padding: 12px 30px;
-            border-bottom: 1px solid #E5E7EB;
-            margin-bottom: 40px;
+        /* ===== التوافق مع الشاشات الصغيرة ===== */
+        @media (max-width: 768px) {
+            .header-buttons-container {
+                left: 15px;
+                top: 15px;
+                gap: 8px;
+            }
+
+            .btn-home, .btn-login {
+                padding: 8px 14px;
+                font-size: 13px;
+            }
+
+            .auth-navbar-logo.auth-logo-large {
+                gap: 12px;
+                font-size: 22px;
+                margin-bottom: 35px;
+            }
+
+            .auth-logo-icon.auth-logo-large-icon {
+                width: 55px;
+                height: 55px;
+            }
         }
 
-        .simple-header-content {
-            max-width: 1280px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        @media (max-width: 480px) {
+            .header-buttons-container {
+                left: 10px;
+                top: 10px;
+                gap: 6px;
+            }
 
-        .simple-header .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-            color: #000000;
-            font-weight: 700;
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
+            .btn-home, .btn-login {
+                padding: 7px 12px;
+                font-size: 12px;
+            }
 
-        .simple-header .logo:hover {
-            color: #00A6FB;
-        }
+            .auth-navbar-logo.auth-logo-large {
+                gap: 10px;
+                font-size: 20px;
+                margin-bottom: 30px;
+            }
 
-        .simple-header .logo:hover svg {
-            animation: logoRotate 0.6s ease-in-out;
-        }
-
-        .simple-header .logo svg {
-            width: 36px;
-            height: 36px;
-            transition: all 0.3s ease;
-        }
-
-        .header-buttons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .nav-link {
-            padding: 8px 16px;
-            border-radius: 8px;
-            text-decoration: none;
-            background: var(--light-bg);
-            color: var(--text-primary);
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.2s;
-            white-space: nowrap;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .nav-link:hover {
-            background: var(--primary-light);
-            color: #00A6FB;
-        }
-
-        .nav-link.nav-login {
-            background: #00A6FB;
-            color: #FFFFFF;
-        }
-
-        .nav-link.nav-login:hover {
-            background: #0891E6;
+            .auth-logo-icon.auth-logo-large-icon {
+                width: 48px;
+                height: 48px;
+            }
         }
     </style>
 </head>
 <body>
     
-    <!-- الشريط العلوي البسيط -->
-    <div class="simple-header">
-        <div class="simple-header-content">
-            <a href="./" class="logo">
-                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <!-- ===== الأزرار العلوية فقط ===== -->
+    <div class="header-buttons-container">
+        <a href="./" class="btn-home">← الرئيسية</a>
+        <a href="login" class="btn-login">الدخول</a>
+    </div>
+
+    <!-- محتوى التسجيل -->
+    <div class="auth-container">
+        <div class="auth-box">
+            <!-- الشعار الكبير في المنتصف -->
+            <a href="./" class="auth-navbar-logo auth-logo-large">
+                <svg class="auth-logo-icon auth-logo-large-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                     <defs>
                         <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                             <stop offset="0%" style="stop-color:#0891E6;stop-opacity:1" />
@@ -264,48 +302,6 @@ $siteName = getSiteName();
                     <line x1="58" y1="60" x2="72" y2="60" stroke="#0284C7" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
                     
                     <circle cx="50" cy="50" r="6" fill="url(#logoGradient)"/>
-                    <circle cx="50" cy="50" r="4" fill="none" stroke="#FFFFFF" stroke-width="1.5"/>
-                    <line x1="46" y1="50" x2="54" y2="50" stroke="#FFFFFF" stroke-width="1"/>
-                    <line x1="50" y1="46" x2="50" y2="54" stroke="#FFFFFF" stroke-width="1"/>
-                </svg>
-                <span><?php echo htmlspecialchars($siteName); ?></span>
-            </a>
-            
-            <div class="header-buttons">
-                <a href="./" class="nav-link">← الرئيسية</a>
-                <a href="login" class="nav-link nav-login">الدخول</a>
-            </div>
-        </div>
-    </div>
-
-    <!-- محتوى التسجيل -->
-    <div class="auth-container">
-        <div class="auth-box">
-            <!-- الشعار في المنتصف -->
-            <a href="./" class="auth-navbar-logo">
-                <svg class="auth-logo-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <linearGradient id="logoGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style="stop-color:#0891E6;stop-opacity:1" />
-                            <stop offset="100%" style="stop-color:#0284C7;stop-opacity:1" />
-                        </linearGradient>
-                    </defs>
-                    
-                    <path d="M 15 25 Q 50 20 85 25 L 85 75 Q 50 80 15 75 Z" fill="#F3F4F6" stroke="#0891E6" stroke-width="2"/>
-                    <path d="M 15 28 L 50 26 L 50 72 L 15 75 Z" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="1.5"/>
-                    <path d="M 50 26 L 85 28 L 85 75 L 50 72 Z" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="1.5"/>
-                    
-                    <line x1="22" y1="36" x2="42" y2="36" stroke="#0891E6" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
-                    <line x1="22" y1="44" x2="42" y2="44" stroke="#0891E6" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
-                    <line x1="22" y1="52" x2="42" y2="52" stroke="#0891E6" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
-                    <line x1="22" y1="60" x2="36" y2="60" stroke="#0891E6" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
-                    
-                    <line x1="58" y1="36" x2="78" y2="36" stroke="#0284C7" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
-                    <line x1="58" y1="44" x2="78" y2="44" stroke="#0284C7" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
-                    <line x1="58" y1="52" x2="78" y2="52" stroke="#0284C7" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
-                    <line x1="58" y1="60" x2="72" y2="60" stroke="#0284C7" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
-                    
-                    <circle cx="50" cy="50" r="6" fill="url(#logoGradient2)"/>
                     <circle cx="50" cy="50" r="4" fill="none" stroke="#FFFFFF" stroke-width="1.5"/>
                     <line x1="46" y1="50" x2="54" y2="50" stroke="#FFFFFF" stroke-width="1"/>
                     <line x1="50" y1="46" x2="50" y2="54" stroke="#FFFFFF" stroke-width="1"/>
