@@ -97,5 +97,17 @@ function getPageTitle($pageTitle = '') {
     
     return $siteName . ' | ' . $pageTitle;
 }
+
+/**
+ * عنوان الموقع
+ */
+function getSiteLogoHTML() {
+    $siteName = getSiteName();
+    return '<span>📊</span><span>' . htmlspecialchars($siteName) . '</span>';
+}
+
+function getSiteLogo() {
+    return '📊';
+}
 ?>
 

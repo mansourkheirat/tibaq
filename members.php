@@ -445,12 +445,12 @@ $hasAnyAccess = $hasFullAccess || $hasLimitedAccess;
         
         .page-header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
         }
         
         .page-header h1 {
             font-size: 36px;
-            color: #1565C0;
+            color: #0891E6;
             margin-bottom: 10px;
         }
         
@@ -462,7 +462,7 @@ $hasAnyAccess = $hasFullAccess || $hasLimitedAccess;
 
         .page-header p span {
             font-size: 18px;
-            color: #1565C0;
+            color: #0891E6;
             font-weight: bold;
         }
         
@@ -522,7 +522,7 @@ $hasAnyAccess = $hasFullAccess || $hasLimitedAccess;
         }
         
         .search-box.active {
-            border-color: #1565C0;
+            border-color: #0891E6;
         }
         
         .search-input {

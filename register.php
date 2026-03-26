@@ -315,7 +315,7 @@ $siteName = getSiteName();
 
             <div class="auth-box-header">
                 <h1>إنشاء حساب جديد</h1>
-                <p>انضم إلينا وابدأ رحلتك مع طباق</p>
+                <p>انضم إلينا وابدأ رحلتك مع: <span><?php echo htmlspecialchars($siteName); ?></span>.</p>
             </div>
 
             <?php if (!empty($errors)): ?>
